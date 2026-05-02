@@ -16,6 +16,7 @@ ahash = "0.8.12"
 foldhash = "0.2.0"
 rapidhash = "4.4.1"
 wyhash-final4 = "0.2.2"
+xxhash-rust = { version = "0.8.15", features = ["xxh3"] }
 
 [profile.release]
 opt-level = 3

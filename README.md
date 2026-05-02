@@ -98,7 +98,7 @@ cargo bench --bench stress_test
 cargo bench --bench head_to_head
 ```
 
-`stress_test` fokus ke profil internal `axhash`, sedangkan `head_to_head` membandingkan `axhash` melawan `ahash`, `foldhash`, `rapidhash`, dan `wyhash`.
+`stress_test` fokus ke profil internal `axhash`, sedangkan `head_to_head` membandingkan `axhash` melawan `ahash`, `foldhash`, `rapidhash`, `wyhash` dan `xxh3`.
 
 ## Desain Singkat
 

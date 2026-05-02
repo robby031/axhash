@@ -9,6 +9,7 @@ use std::hint::black_box;
 use std::time::{Duration, Instant};
 use wyhash_final4::generics::WyHasher;
 use wyhash_final4::wyhash64::WyHash64;
+use xxhash_rust::xxh3::xxh3_64;
 
 const SAMPLE_COUNT: usize = 5;
 const WARMUP_ROUNDS: usize = 1;
@@ -74,6 +75,30 @@ struct BenchGroup {
     operations: u64,
     total_bytes: u64,
     results: Vec<AlgorithmResult>,
+}
+
+#[derive(Clone)]
+struct XXH3BuildHasher;
+
+#[derive(Clone)]
+struct XXH3Hasher {
+    hash: u64,
+}
+
+impl std::hash::BuildHasher for XXH3BuildHasher {
+    type Hasher = XXH3Hasher;
+    fn build_hasher(&self) -> Self::Hasher {
+        XXH3Hasher { hash: 0 }
+    }
+}
+
+impl std::hash::Hasher for XXH3Hasher {
+    fn write(&mut self, bytes: &[u8]) {
+        self.hash = xxh3_64(bytes);
+    }
+    fn finish(&self) -> u64 {
+        self.hash
+    }
 }
 
 fn detect_cpu() -> String {
@@ -260,6 +285,13 @@ fn bench_short_bytes() -> BenchGroup {
                 }
                 acc
             }),
+            run_algorithm("xxh3", || {
+                let mut acc = 0u64;
+                for bytes in black_box(&buffers) {
+                    acc ^= black_box(xxh3_64(bytes));
+                }
+                acc
+            }),
         ],
     }
 }
@@ -318,6 +350,78 @@ fn bench_mixed_bytes() -> BenchGroup {
                 }
                 acc
             }),
+            run_algorithm("xxh3", || {
+                let mut acc = 0u64;
+                for bytes in black_box(&buffers) {
+                    acc ^= black_box(xxh3_64(bytes));
+                }
+                acc
+            }),
+        ],
+    }
+}
+
+fn bench_large_bytes() -> BenchGroup {
+    let (buffers, total_bytes) = build_variable_bytes(1000, 1024 * 1024, 1024 * 1024, 0x3003);
+    let ahash = AHashRandomState::with_seed(AXHASH_SEED as usize);
+    let foldhash = FoldHashFixedState::with_seed(AXHASH_SEED);
+    let rapidhash_state = RapidSeedableState::custom(RAPID_SECRETS.seed, &RAPID_SECRETS.secrets);
+    let wyhash = WyHasher::<WyHash64>::from_seed(AXHASH_SEED);
+
+    BenchGroup {
+        name: "Large raw bytes (1000 payload @ 1MB)",
+        operations: buffers.len() as u64,
+        total_bytes,
+        results: vec![
+            run_algorithm("axhash", || {
+                let mut acc = 0u64;
+                for bytes in black_box(&buffers) {
+                    acc ^= black_box(axhash_seeded(bytes, AXHASH_SEED));
+                }
+                acc
+            }),
+            run_algorithm("rapidhash", || {
+                let mut acc = 0u64;
+                for bytes in black_box(&buffers) {
+                    acc ^= black_box(rapidhash_v3_seeded(bytes, &RAPID_SECRETS));
+                }
+                acc
+            }),
+            run_algorithm("ahash", || {
+                let mut acc = 0u64;
+                for bytes in black_box(&buffers) {
+                    acc ^= black_box(hash_bytes_via_builder(&ahash, bytes));
+                }
+                acc
+            }),
+            run_algorithm("foldhash", || {
+                let mut acc = 0u64;
+                for bytes in black_box(&buffers) {
+                    acc ^= black_box(hash_bytes_via_builder(&foldhash, bytes));
+                }
+                acc
+            }),
+            run_algorithm("wyhash", || {
+                let mut acc = 0u64;
+                for bytes in black_box(&buffers) {
+                    acc ^= black_box(wyhash.hash(bytes));
+                }
+                acc
+            }),
+            run_algorithm("rapidhash-h", || {
+                let mut acc = 0u64;
+                for bytes in black_box(&buffers) {
+                    acc ^= black_box(hash_bytes_via_builder(&rapidhash_state, bytes));
+                }
+                acc
+            }),
+            run_algorithm("xxh3", || {
+                let mut acc = 0u64;
+                for bytes in black_box(&buffers) {
+                    acc ^= black_box(xxh3_64(bytes));
+                }
+                acc
+            }),
         ],
     }
 }
@@ -360,6 +464,19 @@ fn bench_struct_hash_trait() -> BenchGroup {
             }),
             run_algorithm("wyhash", || {
                 black_box(hash_structs(&wyhash, black_box(&data)))
+            }),
+            run_algorithm("xxh3", || {
+                let mut acc = 0u64;
+                for item in black_box(&data) {
+                    let bytes = unsafe {
+                        core::slice::from_raw_parts(
+                            (item as *const MetadataNode) as *const u8,
+                            core::mem::size_of::<MetadataNode>(),
+                        )
+                    };
+                    acc ^= black_box(xxh3_64(bytes));
+                }
+                acc
             }),
         ],
     }
@@ -416,6 +533,9 @@ fn bench_hashmap_insert() -> BenchGroup {
                     WyHasher::<WyHash64>::from_seed(AXHASH_SEED),
                     black_box(&data),
                 ))
+            }),
+            run_algorithm("xxh3", || {
+                black_box(insert_then_probe(XXH3BuildHasher, black_box(&data)))
             }),
         ],
     }
@@ -493,6 +613,13 @@ fn bench_hashmap_lookup() -> BenchGroup {
                     black_box(&miss_data),
                 ))
             }),
+            run_algorithm("xxh3", || {
+                black_box(lookup_mix(
+                    XXH3BuildHasher,
+                    black_box(&hit_data),
+                    black_box(&miss_data),
+                ))
+            }),
         ],
     }
 }
@@ -525,6 +652,7 @@ fn main() {
     let groups = vec![
         bench_short_bytes(),
         bench_mixed_bytes(),
+        bench_large_bytes(),
         bench_struct_hash_trait(),
         bench_hashmap_insert(),
         bench_hashmap_lookup(),

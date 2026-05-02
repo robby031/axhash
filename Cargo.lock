@@ -23,6 +23,7 @@ dependencies = [
  "foldhash",
  "rapidhash",
  "wyhash-final4",
+ "xxhash-rust",
 ]
 
 [[package]]
@@ -143,6 +144,12 @@ name = "wyhash-final4"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e19276aeff1b4987182db862cc0e75a79023528cd1ec951ea3bd6cddba029c7d"
+
+[[package]]
+name = "xxhash-rust"
+version = "0.8.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fdd20c5420375476fbd4394763288da7eb0cc0b8c11deed431a91562af7335d3"
 
 [[package]]
 name = "zerocopy"
