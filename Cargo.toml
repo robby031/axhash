@@ -1,6 +1,6 @@
 [package]
 name = "axhash"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "Fast non-cryptographic hash function for Rust with no_std support and strong HashMap performance."
 repository = "https://github.com/robby031/axhash"
@@ -17,6 +17,7 @@ foldhash = "0.2.0"
 rapidhash = "4.4.1"
 wyhash-final4 = "0.2.2"
 xxhash-rust = { version = "0.8.15", features = ["xxh3"] }
+criterion = "0.8.2"
 
 [profile.release]
 opt-level = 3
@@ -29,9 +30,13 @@ lto = "fat"
 codegen-units = 1
 
 [[bench]]
+name = "head_to_head"
+harness = false
+
+[[bench]]
 name = "stress_test"
 harness = false
 
 [[bench]]
-name = "head_to_head"
+name = "my_criterion"
 harness = false

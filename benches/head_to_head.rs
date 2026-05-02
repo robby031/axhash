@@ -191,6 +191,31 @@ fn print_group(group: &BenchGroup) {
             result.stats.checksum
         );
     }
+
+    if let Some(axhash) = group.results.iter().find(|r| r.algorithm == "axhash") {
+        let ax_ns = latency_ns(group.operations, axhash.stats.best.as_secs_f64());
+        let (winner, winner_ns) = group
+            .results
+            .iter()
+            .map(|r| {
+                (
+                    r.algorithm,
+                    latency_ns(group.operations, r.stats.best.as_secs_f64()),
+                )
+            })
+            .min_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
+            .unwrap();
+
+        if winner != "axhash" {
+            let diff = ((ax_ns / winner_ns) - 1.0) * 100.0;
+            println!(
+                ">> axhash lambat {:.1}% dari {} pada grup ini",
+                diff, winner
+            );
+        } else {
+            println!(">> axhash yang tercepat pada grup ini");
+        }
+    }
 }
 
 fn build_small_struct_dataset(count: usize) -> Vec<MetadataNode> {
