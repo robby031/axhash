@@ -1,6 +1,6 @@
 [package]
 name = "axhash-core"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 description = "Platform-agnostic AxHash core for Rust with no_std compatibility."
 repository = "https://github.com/robby031/axhash"
