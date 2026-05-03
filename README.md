@@ -1,4 +1,11 @@
-`axhash (v0.1.1)`
+
+# axhash
+
+[![Crates.io](https://img.shields.io/crates/v/axhash?style=flat-square&color=orange&logo=rust)](https://crates.io/crates/axhash)
+[![Documentation](https://img.shields.io/docsrs/axhash?style=flat-square&logo=docs.rs)](https://docs.rs/axhash)
+[![License](https://img.shields.io/crates/l/axhash?style=flat-square&color=blue)](https://crates.io/crates/axhash)
+[![Downloads](https://img.shields.io/crates/d/axhash?style=flat-square&color=darkgreen)](https://crates.io/crates/axhash)
+[![Support me on Ko-fi](https://img.shields.io/badge/Support%20me-Ko--fi-F16061?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/robby031)
 
 axhash adalah hash function non-cryptographic untuk Rust yang dirancang untuk performa tinggi, distribusi bit yang merata, dan efisiensi pada workload nyata, khususnya pada key kecil hingga menengah dan penggunaan di struktur data seperti HashMap.
 
