@@ -1,10 +1,16 @@
 # AxHash
 
-[![Crates.io](https://img.shields.io/crates/v/axhash?style=flat-square&color=orange&logo=rust)](https://crates.io/crates/axhash)
-[![Documentation](https://img.shields.io/docsrs/axhash?style=flat-square&logo=docs.rs)](https://docs.rs/axhash)
-[![License](https://img.shields.io/crates/l/axhash?style=flat-square&color=blue)](https://crates.io/crates/axhash)
-[![Downloads](https://img.shields.io/crates/d/axhash?style=flat-square&color=darkgreen)](https://crates.io/crates/axhash)
-[![Support me on Ko-fi](https://img.shields.io/badge/Support%20me-Ko--fi-F16061?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/robby031)
+### Core Engine (Rust)
+
+[![Crates.io](https://img.shields.io/crates/v/axhash-core?style=flat-square&color=orange&logo=rust)](https://crates.io/crates/axhash-core)
+[![Documentation](https://img.shields.io/docsrs/axhash-core?style=flat-square&logo=docs.rs)](https://docs.rs/axhash-core)
+[![Downloads](https://img.shields.io/crates/d/axhash-core?style=flat-square&color=darkgreen)](https://crates.io/crates/axhash-core)
+
+### Extensions & Distribution
+
+[![Python](https://img.shields.io/pypi/v/axhash?style=flat-square&logo=python&logoColor=white&color=blue)](https://pypi.org/project/axhash/)
+[![FFI Downloads](https://img.shields.io/crates/d/axhash-ffi?style=flat-square&color=darkgreen)](https://crates.io/crates/axhash-ffi)
+[![Support me](https://img.shields.io/badge/Support%20me-Ko--fi-F16061?style=flat-square&logo=ko-fi)](https://ko-fi.com/robby031)
 
 Keluarga hash function modern untuk Rust, C, dan Python. Fokus pada performa, portabilitas, dan kemudahan integrasi.
 
