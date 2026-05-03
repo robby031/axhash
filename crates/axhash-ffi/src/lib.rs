@@ -1,4 +1,6 @@
-use axhash_core::{AxHasher, RuntimeBackend, axhash, axhash_seeded, runtime_backend, runtime_has_aes};
+use axhash_core::{
+    AxHasher, RuntimeBackend, axhash, axhash_seeded, runtime_backend, runtime_has_aes,
+};
 use core::ffi::c_char;
 use core::hash::Hasher;
 use core::ptr::NonNull;
@@ -10,6 +12,12 @@ use alloc::boxed::Box;
 #[repr(C)]
 pub struct AxHashState {
     _private: [u8; 0],
+}
+
+#[repr(C)]
+pub struct AxHashIovec {
+    ptr: *const u8,
+    len: usize,
 }
 
 #[repr(C)]
@@ -72,6 +80,30 @@ pub extern "C" fn axhash_bytes_seeded(bytes: *const u8, len: usize, seed: u64) -
     ffi_bytes(bytes, len)
         .map(|slice| axhash_seeded(slice, seed))
         .unwrap_or(0)
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn axhash_batch_seeded(
+    iovecs: *const AxHashIovec,
+    count: usize,
+    seed: u64,
+    out_hashes: *mut u64,
+) {
+    if iovecs.is_null() || out_hashes.is_null() || count == 0 {
+        return;
+    }
+
+    unsafe {
+        let jobs = core::slice::from_raw_parts(iovecs, count);
+        let outs = core::slice::from_raw_parts_mut(out_hashes, count);
+
+        for i in 0..count {
+            let job = &jobs[i];
+            outs[i] = ffi_bytes(job.ptr, job.len)
+                .map(|slice| axhash_seeded(slice, seed))
+                .unwrap_or(0);
+        }
+    }
 }
 
 #[unsafe(no_mangle)]
@@ -161,5 +193,35 @@ mod tests {
 
         assert_eq!(axhash_hasher_finish(state), rust_hasher.finish());
         axhash_hasher_free(state);
+    }
+
+    #[test]
+    fn ffi_batch_matches_scalar() {
+        let str1 = b"apple";
+        let str2 = b"banana";
+        let str3 = b"cherry";
+
+        let jobs = [
+            AxHashIovec {
+                ptr: str1.as_ptr(),
+                len: str1.len(),
+            },
+            AxHashIovec {
+                ptr: str2.as_ptr(),
+                len: str2.len(),
+            },
+            AxHashIovec {
+                ptr: str3.as_ptr(),
+                len: str3.len(),
+            },
+        ];
+
+        let mut outs = [0u64; 3];
+
+        axhash_batch_seeded(jobs.as_ptr(), jobs.len(), 42, outs.as_mut_ptr());
+
+        assert_eq!(outs[0], axhash_bytes_seeded(str1.as_ptr(), str1.len(), 42));
+        assert_eq!(outs[1], axhash_bytes_seeded(str2.as_ptr(), str2.len(), 42));
+        assert_eq!(outs[2], axhash_bytes_seeded(str3.as_ptr(), str3.len(), 42));
     }
 }

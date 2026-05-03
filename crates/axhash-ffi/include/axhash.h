@@ -16,6 +16,11 @@ typedef enum AxHashRuntimeBackend {
   AX_HASH_RUNTIME_BACKEND_X86_64AES_AVX2 = 2,
 } AxHashRuntimeBackend;
 
+typedef struct AxHashIovec {
+  const uint8_t *ptr;
+  size_t len;
+} AxHashIovec;
+
 typedef struct AxHashState {
   uint8_t _private[0];
 } AxHashState;
@@ -29,6 +34,11 @@ const char *axhash_ffi_version(void);
 uint64_t axhash_bytes(const uint8_t *bytes, size_t len);
 
 uint64_t axhash_bytes_seeded(const uint8_t *bytes, size_t len, uint64_t seed);
+
+void axhash_batch_seeded(const struct AxHashIovec *iovecs,
+                         size_t count,
+                         uint64_t seed,
+                         uint64_t *out_hashes);
 
 struct AxHashState *axhash_hasher_new(void);
 
