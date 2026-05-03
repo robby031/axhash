@@ -8,6 +8,7 @@ repository.workspace = true
 description = "WebAssembly bindings for the AxHash engine"
 
 [lib]
+name = "axhash_wasm"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]

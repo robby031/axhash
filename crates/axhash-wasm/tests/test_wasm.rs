@@ -1,4 +1,4 @@
-use axhash_rs_wasm::{Hasher, axhash_seeded_wasm, axhash_wasm};
+use axhash_wasm::{Hasher, axhash_seeded_wasm, axhash_wasm};
 use wasm_bindgen_test::*;
 
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_node_experimental);

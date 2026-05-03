@@ -18,7 +18,7 @@ def find_first(base: Path, patterns: list[str]) -> Path:
     raise FileNotFoundError(f"no file matching {patterns} in {base}")
 
 def get_resolved_version(package_name: str) -> str:
-   
+    """Mengambil versi paket langsung dari cargo metadata."""
     try:
         cmd = ["cargo", "metadata", "--format-version", "1", "--no-deps"]
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -59,11 +59,22 @@ def main() -> int:
         
         try:
             subprocess.run(wasm_pack_cmd, check=True)
-        except FileNotFoundError:
-            print("Error: wasm-pack not found.", file=sys.stderr)
+            source_json = wasm_pkg_dir / "package.json"
+            target_json = wasm_out_dir / "package.json"
+            if source_json.exists():
+                print(f"Syncing customized package.json to {target_json}")
+                shutil.copy2(source_json, target_json)
+
+            ignore_file = wasm_out_dir / ".gitignore"
+            if ignore_file.exists():
+                ignore_file.unlink()
+                print("Removed .gitignore from WASM output for NPM compatibility.")
+
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            print(f"Error during WASM build process: {e}", file=sys.stderr)
             return 1
 
-        # Menggunakan resolver versi otomatis
+        # Menggunakan resolver versi otomatis dari metadata workspace
         version = get_resolved_version("axhash-rs-wasm")
         archive_name = out_dir / f"axhash-wasm-{version}.tar.gz"
 

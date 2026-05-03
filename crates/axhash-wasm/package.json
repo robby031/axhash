@@ -1,18 +1,26 @@
 {
   "name": "axhash-rs-wasm",
-  "collaborators": ["AxHash Contributors"],
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "WebAssembly bindings for the AxHash engine",
+  "collaborators": [
+    "AxHash Contributors"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/robby031/axhash.git"
   },
+  "type": "module",
+  "main": "axhash_wasm.js",
+  "types": "axhash_wasm.d.ts",
+  "module": "axhash_wasm.js",
   "files": [
-    "pkg/*.{js,wasm,d.ts}"
+    "axhash_wasm_bg.wasm",
+    "axhash_wasm.js",
+    "axhash_wasm.d.ts",
+    "axhash_wasm_bg.js",
+    "axhash_wasm_bg.wasm.d.ts"
   ],
-  "main": "pkg/axhash_wasm.js",
-  "types": "pkg/axhash_wasm.d.ts",
   "sideEffects": false,
   "keywords": [
     "hash",
