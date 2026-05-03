@@ -1,4 +1,4 @@
-# axhash-python
+# axhash-wasm
 
 ### Core Engine (Rust)
 
