@@ -1,14 +1,16 @@
 use crate::bytes::finalize_vector;
 use crate::constants::{SECRET, STRIPE_SECRET};
+
+#[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::*;
 
-#[inline(always)]
+#[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "aes")]
 unsafe fn aes_round(state: __m128i, block: __m128i) -> __m128i {
-    _mm_aesenc_si128(state, block)
+    unsafe { _mm_aesenc_si128(state, block) }
 }
 
-#[inline(always)]
+#[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx2")]
 unsafe fn load_pair(ptr: *const u8) -> (__m128i, __m128i) {
     let pair = unsafe { _mm256_loadu_si256(ptr.cast::<__m256i>()) };
@@ -20,9 +22,10 @@ unsafe fn load_pair(ptr: *const u8) -> (__m128i, __m128i) {
 
 #[inline(always)]
 unsafe fn lanes(vec: __m128i) -> [u64; 2] {
-    core::mem::transmute(vec)
+    unsafe { core::mem::transmute(vec) }
 }
 
+#[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "aes", enable = "avx2")]
 pub(crate) unsafe fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u64 {
     let mut v0 = _mm_set1_epi64x((SECRET[0] ^ acc) as i64);
@@ -77,6 +80,7 @@ pub(crate) unsafe fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u6
     let sum0 = _mm_xor_si128(_mm_xor_si128(v0, v2), _mm_xor_si128(v4, v6));
     let sum1 = _mm_xor_si128(_mm_xor_si128(v1, v3), _mm_xor_si128(v5, v7));
     let final_vec = _mm_xor_si128(sum0, sum1);
+
     let lanes = unsafe { lanes(final_vec) };
 
     finalize_vector(lanes[0], lanes[1], len)
