@@ -1,7 +1,7 @@
 {
   "name": "axhash-rs-wasm",
   "collaborators": ["AxHash Contributors"],
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "WebAssembly bindings for the AxHash engine",
   "license": "MIT",
   "repository": {
