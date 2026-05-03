@@ -1,5 +1,5 @@
 [package]
-name = "axhash-wasm"
+name = "axhash-rs-wasm"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
