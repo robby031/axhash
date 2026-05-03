@@ -16,9 +16,11 @@ pub(crate) const fn seed_lane(seed: u64, lane: usize) -> u64 {
 
 #[inline(always)]
 pub(crate) fn avalanche(mut x: u64) -> u64 {
-    x ^= x >> 32;
-    x = folded_multiply(x ^ SECRET[1], x.rotate_left(19) ^ STRIPE_SECRET[2]);
-    x ^= x >> 29;
-    x = folded_multiply(x ^ SECRET[3], x.rotate_left(27) ^ STRIPE_SECRET[0]);
-    x ^ (x >> 28)
+    x ^= x >> 33;
+    x = x.wrapping_mul(0xff51afd7ed558ccd);
+    x ^= x >> 33;
+    x = x.wrapping_mul(0xc4ceb9fe1a85ec53);
+    x ^= x >> 33;
+
+    x
 }

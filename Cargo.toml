@@ -1,6 +1,6 @@
 [package]
 name = "axhash"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 description = "Fast non-cryptographic hash function for Rust with no_std support and strong HashMap performance."
 repository = "https://github.com/robby031/axhash"

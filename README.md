@@ -1,4 +1,3 @@
-
 # axhash
 
 [![Crates.io](https://img.shields.io/crates/v/axhash?style=flat-square&color=orange&logo=rust)](https://crates.io/crates/axhash)
@@ -9,15 +8,11 @@
 
 axhash adalah hash function non-cryptographic untuk Rust yang dirancang untuk performa tinggi, distribusi bit yang merata, dan efisiensi pada workload nyata, khususnya pada key kecil hingga menengah dan penggunaan di struktur data seperti HashMap.
 
-## Apa yang Baru di v0.1.1?
+## Apa yang Baru di v0.1.2?
 
-Versi ini membawa pembaruan cukup besar pada arsitektur internal untuk memaksimalkan efisiensi pada CPU modern, termasuk:
-
-- Jalur NEON asimetris untuk ARMv8-A
-- Akselerasi hardware AES `vaeseq_u8`, `vaesmcq_u8` untuk mixing lebih cepat
-- Loop 128-byte yang mengoptimalkan pemrosesan data besar
-- Tail processing tanpa branch untuk mengurangi misprediction
-- Permutasi `Feistel Link` untuk memperkuat difusi bit dan ketahanan DoS
+- Dokumentasi penggunaan diperbarui dan diperjelas untuk semua API publik
+- Contoh penggunaan lebih lengkap untuk berbagai skenario (hash bytes, hash struct, integrasi HashMap, custom seed)
+- Perbaikan minor pada dokumentasi dan penjelasan API
 
 ## Fitur Utama
 
@@ -44,9 +39,19 @@ Hasil benchmark internal menggunakan `Criterion.rs`:
 ![Hasil Oneshoot](assets/screenshot_oneshoot.png)
 ![Hasil Streaming](assets/screenshot_streaming.png)
 
-## Contoh Penggunaan
+## API Publik & Contoh Penggunaan
 
-Hash bytes dengan seed:
+### 1. Hash Bytes
+
+Hash bytes dengan seed default (0):
+
+```rust
+use axhash::axhash;
+let hash = axhash(b"axhash super power");
+println!("Hash: {hash:016x}");
+```
+
+Hash bytes dengan custom seed:
 
 ```rust
 use axhash::axhash_seeded;
@@ -54,7 +59,34 @@ let hash = axhash_seeded(b"axhash super power", 0x1234_5678);
 println!("Hash: {hash:016x}");
 ```
 
-HashMap dengan AxBuildHasher:
+### 2. Hash Tipe/Struct Apapun (Trait Hash)
+
+Hash struct/tipe apapun yang mengimplementasikan trait `Hash`:
+
+```rust
+use axhash::axhash_of;
+#[derive(Hash)]
+struct DemoRecord {
+	id: u64,
+	shard: u32,
+	flags: u32,
+}
+let record = DemoRecord { id: 1, shard: 2, flags: 3 };
+let hash = axhash_of(&record);
+println!("Hash: {hash:016x}");
+```
+
+Hash struct dengan custom seed:
+
+```rust
+use axhash::axhash_of_seeded;
+let hash = axhash_of_seeded(&record, 0xDEADC0DE);
+println!("Hash: {hash:016x}");
+```
+
+### 3. Integrasi dengan HashMap
+
+axhash menyediakan `AxBuildHasher` untuk integrasi mudah dengan `HashMap`:
 
 ```rust
 use axhash::AxBuildHasher;
@@ -62,6 +94,37 @@ use std::collections::HashMap;
 let mut map = HashMap::with_hasher(AxBuildHasher::with_seed(0xDEADC0DE));
 map.insert("key", "performance");
 ```
+
+Jika ingin seed default:
+
+```rust
+let mut map = HashMap::with_hasher(AxBuildHasher::new());
+```
+
+### 4. Penggunaan Manual Hasher
+
+Jika ingin kontrol penuh, gunakan `AxHasher` secara manual:
+
+```rust
+use axhash::AxHasher;
+use core::hash::Hasher;
+let mut hasher = AxHasher::new_with_seed(0x4444);
+hasher.write_u64(0x0102_0304_0506_0708);
+hasher.write_u32(0xaabb_ccdd);
+hasher.write_u16(0xeeff);
+hasher.write_u8(0x11);
+let value = hasher.finish();
+println!("Hash: {value:016x}");
+```
+
+## Penjelasan API
+
+- `axhash(bytes: &[u8]) -> u64` — Hash bytes dengan seed default (0)
+- `axhash_seeded(bytes: &[u8], seed: u64) -> u64` — Hash bytes dengan seed custom
+- `axhash_of<T: Hash>(data: &T) -> u64` — Hash tipe/struct apapun yang implementasi trait `Hash` (seed default)
+- `axhash_of_seeded<T: Hash>(data: &T, seed: u64) -> u64` — Hash tipe/struct apapun dengan seed custom
+- `AxBuildHasher` — Untuk integrasi dengan HashMap, mendukung seed custom
+- `AxHasher` — Hasher manual, implementasi trait `Hasher`
 
 ## Desain Singkat
 

@@ -11,3 +11,5 @@ pub(crate) const STRIPE_SECRET: [u64; 4] = [
     0x8ebc_6af0_9c88_c6e3,
     0x5899_65cc_7537_4cc3,
 ];
+
+pub(crate) const FINAL_MIX: u64 = 0xbf58_476d_1ce4_e5b9;

@@ -1,6 +1,7 @@
-use crate::constants::{SECRET, STRIPE_SECRET};
+use crate::constants::{FINAL_MIX, SECRET, STRIPE_SECRET};
 use crate::math::{avalanche, folded_multiply};
-use crate::memory::{read_u32, read_u64};
+use crate::memory::r_128;
+use crate::memory::{r_u32, r_u64};
 
 #[cfg(target_arch = "aarch64")]
 use core::arch::aarch64::*;
@@ -8,12 +9,12 @@ use core::arch::aarch64::*;
 #[inline(always)]
 pub(crate) unsafe fn hash_bytes_short(ptr: *const u8, len: usize, acc: u64) -> u64 {
     let h = if len >= 8 {
-        let a = unsafe { read_u64(ptr) } ^ SECRET[1] ^ (len as u64);
-        let b = unsafe { read_u64(ptr.add(len - 8)) } ^ STRIPE_SECRET[1] ^ acc;
+        let a = unsafe { r_u64(ptr) } ^ SECRET[1] ^ (len as u64);
+        let b = unsafe { r_u64(ptr.add(len - 8)) } ^ STRIPE_SECRET[1] ^ acc;
         folded_multiply(a, b)
     } else if len >= 4 {
-        let a = (unsafe { read_u32(ptr) } as u64) ^ SECRET[2] ^ (len as u64);
-        let b = (unsafe { read_u32(ptr.add(len - 4)) } as u64) ^ STRIPE_SECRET[2] ^ acc;
+        let a = (unsafe { r_u32(ptr) } as u64) ^ SECRET[2] ^ (len as u64);
+        let b = (unsafe { r_u32(ptr.add(len - 4)) } as u64) ^ STRIPE_SECRET[2] ^ acc;
         folded_multiply(a, b)
     } else if len > 0 {
         let a = unsafe { *ptr } as u64;
@@ -29,10 +30,10 @@ pub(crate) unsafe fn hash_bytes_short(ptr: *const u8, len: usize, acc: u64) -> u
 
 #[inline(always)]
 unsafe fn hash_bytes_17_32(ptr: *const u8, len: usize, acc: u64) -> u64 {
-    let a = unsafe { read_u64(ptr) };
-    let b = unsafe { read_u64(ptr.add(8)) };
-    let c = unsafe { read_u64(ptr.add(len - 16)) };
-    let d = unsafe { read_u64(ptr.add(len - 8)) };
+    let a = unsafe { r_u64(ptr) };
+    let b = unsafe { r_u64(ptr.add(8)) };
+    let c = unsafe { r_u64(ptr.add(len - 16)) };
+    let d = unsafe { r_u64(ptr.add(len - 8)) };
 
     let x = folded_multiply(a ^ SECRET[0], b ^ STRIPE_SECRET[0] ^ acc);
     let y = folded_multiply(c ^ SECRET[1], d ^ STRIPE_SECRET[1] ^ (len as u64));
@@ -41,15 +42,15 @@ unsafe fn hash_bytes_17_32(ptr: *const u8, len: usize, acc: u64) -> u64 {
 
 #[inline(always)]
 unsafe fn hash_bytes_33_64(ptr: *const u8, len: usize, acc: u64) -> u64 {
-    let w0 = unsafe { read_u64(ptr) };
-    let w1 = unsafe { read_u64(ptr.add(8)) };
-    let w2 = unsafe { read_u64(ptr.add(16)) };
-    let w3 = unsafe { read_u64(ptr.add(24)) };
+    let w0 = unsafe { r_u64(ptr) };
+    let w1 = unsafe { r_u64(ptr.add(8)) };
+    let w2 = unsafe { r_u64(ptr.add(16)) };
+    let w3 = unsafe { r_u64(ptr.add(24)) };
 
-    let w4 = unsafe { read_u64(ptr.add(len - 32)) };
-    let w5 = unsafe { read_u64(ptr.add(len - 24)) };
-    let w6 = unsafe { read_u64(ptr.add(len - 16)) };
-    let w7 = unsafe { read_u64(ptr.add(len - 8)) };
+    let w4 = unsafe { r_u64(ptr.add(len - 32)) };
+    let w5 = unsafe { r_u64(ptr.add(len - 24)) };
+    let w6 = unsafe { r_u64(ptr.add(len - 16)) };
+    let w7 = unsafe { r_u64(ptr.add(len - 8)) };
 
     let m0 = folded_multiply(w0 ^ SECRET[0], w1 ^ STRIPE_SECRET[0] ^ acc);
     let m1 = folded_multiply(w2 ^ SECRET[1], w3 ^ STRIPE_SECRET[1]);
@@ -64,23 +65,23 @@ unsafe fn hash_bytes_33_64(ptr: *const u8, len: usize, acc: u64) -> u64 {
 
 #[inline(always)]
 unsafe fn hash_bytes_65_128(ptr: *const u8, len: usize, acc: u64) -> u64 {
-    let w0 = unsafe { read_u64(ptr) };
-    let w1 = unsafe { read_u64(ptr.add(8)) };
-    let w2 = unsafe { read_u64(ptr.add(16)) };
-    let w3 = unsafe { read_u64(ptr.add(24)) };
-    let w4 = unsafe { read_u64(ptr.add(32)) };
-    let w5 = unsafe { read_u64(ptr.add(40)) };
-    let w6 = unsafe { read_u64(ptr.add(48)) };
-    let w7 = unsafe { read_u64(ptr.add(56)) };
+    let w0 = unsafe { r_u64(ptr) };
+    let w1 = unsafe { r_u64(ptr.add(8)) };
+    let w2 = unsafe { r_u64(ptr.add(16)) };
+    let w3 = unsafe { r_u64(ptr.add(24)) };
+    let w4 = unsafe { r_u64(ptr.add(32)) };
+    let w5 = unsafe { r_u64(ptr.add(40)) };
+    let w6 = unsafe { r_u64(ptr.add(48)) };
+    let w7 = unsafe { r_u64(ptr.add(56)) };
 
-    let w8 = unsafe { read_u64(ptr.add(len - 64)) };
-    let w9 = unsafe { read_u64(ptr.add(len - 56)) };
-    let wa = unsafe { read_u64(ptr.add(len - 48)) };
-    let wb = unsafe { read_u64(ptr.add(len - 40)) };
-    let wc = unsafe { read_u64(ptr.add(len - 32)) };
-    let wd = unsafe { read_u64(ptr.add(len - 24)) };
-    let we = unsafe { read_u64(ptr.add(len - 16)) };
-    let wf = unsafe { read_u64(ptr.add(len - 8)) };
+    let w8 = unsafe { r_u64(ptr.add(len - 64)) };
+    let w9 = unsafe { r_u64(ptr.add(len - 56)) };
+    let wa = unsafe { r_u64(ptr.add(len - 48)) };
+    let wb = unsafe { r_u64(ptr.add(len - 40)) };
+    let wc = unsafe { r_u64(ptr.add(len - 32)) };
+    let wd = unsafe { r_u64(ptr.add(len - 24)) };
+    let we = unsafe { r_u64(ptr.add(len - 16)) };
+    let wf = unsafe { r_u64(ptr.add(len - 8)) };
 
     let m0 = folded_multiply(w0 ^ SECRET[0], w1 ^ STRIPE_SECRET[0] ^ acc);
     let m1 = folded_multiply(w2 ^ SECRET[1], w3 ^ STRIPE_SECRET[1]);
@@ -123,14 +124,14 @@ pub(crate) unsafe fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u6
         let mut offset = 0usize;
 
         while offset + 128 <= len {
-            let d0 = vld1q_u8(ptr.add(offset));
-            let d1 = vld1q_u8(ptr.add(offset + 16));
-            let d2 = vld1q_u8(ptr.add(offset + 32));
-            let d3 = vld1q_u8(ptr.add(offset + 48));
-            let d4 = vld1q_u8(ptr.add(offset + 64));
-            let d5 = vld1q_u8(ptr.add(offset + 80));
-            let d6 = vld1q_u8(ptr.add(offset + 96));
-            let d7 = vld1q_u8(ptr.add(offset + 112));
+            let d0 = r_128(ptr.add(offset));
+            let d1 = r_128(ptr.add(offset + 16));
+            let d2 = r_128(ptr.add(offset + 32));
+            let d3 = r_128(ptr.add(offset + 48));
+            let d4 = r_128(ptr.add(offset + 64));
+            let d5 = r_128(ptr.add(offset + 80));
+            let d6 = r_128(ptr.add(offset + 96));
+            let d7 = r_128(ptr.add(offset + 112));
 
             v0 = vaesmcq_u8(vaeseq_u8(v0, d0));
             v1 = vaesmcq_u8(vaeseq_u8(v1, d1));
@@ -150,14 +151,14 @@ pub(crate) unsafe fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u6
         }
 
         let tail = len - 128;
-        let d0 = vld1q_u8(ptr.add(tail));
-        let d1 = vld1q_u8(ptr.add(tail + 16));
-        let d2 = vld1q_u8(ptr.add(tail + 32));
-        let d3 = vld1q_u8(ptr.add(tail + 48));
-        let d4 = vld1q_u8(ptr.add(tail + 64));
-        let d5 = vld1q_u8(ptr.add(tail + 80));
-        let d6 = vld1q_u8(ptr.add(tail + 96));
-        let d7 = vld1q_u8(ptr.add(tail + 112));
+        let d0 = r_128(ptr.add(tail));
+        let d1 = r_128(ptr.add(tail + 16));
+        let d2 = r_128(ptr.add(tail + 32));
+        let d3 = r_128(ptr.add(tail + 48));
+        let d4 = r_128(ptr.add(tail + 64));
+        let d5 = r_128(ptr.add(tail + 80));
+        let d6 = r_128(ptr.add(tail + 96));
+        let d7 = r_128(ptr.add(tail + 112));
 
         v0 = vaesmcq_u8(vaeseq_u8(v0, d0));
         v1 = vaesmcq_u8(vaeseq_u8(v1, d1));
@@ -176,7 +177,7 @@ pub(crate) unsafe fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u6
         let lo = vgetq_lane_u64(final_u64x2, 0);
         let hi = vgetq_lane_u64(final_u64x2, 1);
 
-        folded_multiply(lo ^ 0xbf58476d1ce4e5b9, hi ^ (len as u64))
+        folded_multiply(lo ^ FINAL_MIX, hi ^ (len as u64))
     }
 }
 
@@ -191,23 +192,23 @@ pub(crate) unsafe fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u6
     let mut offset = 0usize;
 
     while offset + 128 <= len {
-        let w0 = unsafe { read_u64(ptr.add(offset)) };
-        let w1 = unsafe { read_u64(ptr.add(offset + 8)) };
-        let w2 = unsafe { read_u64(ptr.add(offset + 16)) };
-        let w3 = unsafe { read_u64(ptr.add(offset + 24)) };
-        let w4 = unsafe { read_u64(ptr.add(offset + 32)) };
-        let w5 = unsafe { read_u64(ptr.add(offset + 40)) };
-        let w6 = unsafe { read_u64(ptr.add(offset + 48)) };
-        let w7 = unsafe { read_u64(ptr.add(offset + 56)) };
+        let w0 = unsafe { r_u64(ptr.add(offset)) };
+        let w1 = unsafe { r_u64(ptr.add(offset + 8)) };
+        let w2 = unsafe { r_u64(ptr.add(offset + 16)) };
+        let w3 = unsafe { r_u64(ptr.add(offset + 24)) };
+        let w4 = unsafe { r_u64(ptr.add(offset + 32)) };
+        let w5 = unsafe { r_u64(ptr.add(offset + 40)) };
+        let w6 = unsafe { r_u64(ptr.add(offset + 48)) };
+        let w7 = unsafe { r_u64(ptr.add(offset + 56)) };
 
-        let w8 = unsafe { read_u64(ptr.add(offset + 64)) };
-        let w9 = unsafe { read_u64(ptr.add(offset + 72)) };
-        let wa = unsafe { read_u64(ptr.add(offset + 80)) };
-        let wb = unsafe { read_u64(ptr.add(offset + 88)) };
-        let wc = unsafe { read_u64(ptr.add(offset + 96)) };
-        let wd = unsafe { read_u64(ptr.add(offset + 104)) };
-        let we = unsafe { read_u64(ptr.add(offset + 112)) };
-        let wf = unsafe { read_u64(ptr.add(offset + 120)) };
+        let w8 = unsafe { r_u64(ptr.add(offset + 64)) };
+        let w9 = unsafe { r_u64(ptr.add(offset + 72)) };
+        let wa = unsafe { r_u64(ptr.add(offset + 80)) };
+        let wb = unsafe { r_u64(ptr.add(offset + 88)) };
+        let wc = unsafe { r_u64(ptr.add(offset + 96)) };
+        let wd = unsafe { r_u64(ptr.add(offset + 104)) };
+        let we = unsafe { r_u64(ptr.add(offset + 112)) };
+        let wf = unsafe { r_u64(ptr.add(offset + 120)) };
 
         let m0 = folded_multiply(w0 ^ SECRET[0], w1 ^ STRIPE_SECRET[0]);
         let m1 = folded_multiply(w2 ^ SECRET[1], w3 ^ STRIPE_SECRET[1]);
@@ -228,22 +229,22 @@ pub(crate) unsafe fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u6
     }
 
     let tail = len - 128;
-    let w0 = unsafe { read_u64(ptr.add(tail)) };
-    let w1 = unsafe { read_u64(ptr.add(tail + 8)) };
-    let w2 = unsafe { read_u64(ptr.add(tail + 16)) };
-    let w3 = unsafe { read_u64(ptr.add(tail + 24)) };
-    let w4 = unsafe { read_u64(ptr.add(tail + 32)) };
-    let w5 = unsafe { read_u64(ptr.add(tail + 40)) };
-    let w6 = unsafe { read_u64(ptr.add(tail + 48)) };
-    let w7 = unsafe { read_u64(ptr.add(tail + 56)) };
-    let w8 = unsafe { read_u64(ptr.add(tail + 64)) };
-    let w9 = unsafe { read_u64(ptr.add(tail + 72)) };
-    let wa = unsafe { read_u64(ptr.add(tail + 80)) };
-    let wb = unsafe { read_u64(ptr.add(tail + 88)) };
-    let wc = unsafe { read_u64(ptr.add(tail + 96)) };
-    let wd = unsafe { read_u64(ptr.add(tail + 104)) };
-    let we = unsafe { read_u64(ptr.add(tail + 112)) };
-    let wf = unsafe { read_u64(ptr.add(tail + 120)) };
+    let w0 = unsafe { r_u64(ptr.add(tail)) };
+    let w1 = unsafe { r_u64(ptr.add(tail + 8)) };
+    let w2 = unsafe { r_u64(ptr.add(tail + 16)) };
+    let w3 = unsafe { r_u64(ptr.add(tail + 24)) };
+    let w4 = unsafe { r_u64(ptr.add(tail + 32)) };
+    let w5 = unsafe { r_u64(ptr.add(tail + 40)) };
+    let w6 = unsafe { r_u64(ptr.add(tail + 48)) };
+    let w7 = unsafe { r_u64(ptr.add(tail + 56)) };
+    let w8 = unsafe { r_u64(ptr.add(tail + 64)) };
+    let w9 = unsafe { r_u64(ptr.add(tail + 72)) };
+    let wa = unsafe { r_u64(ptr.add(tail + 80)) };
+    let wb = unsafe { r_u64(ptr.add(tail + 88)) };
+    let wc = unsafe { r_u64(ptr.add(tail + 96)) };
+    let wd = unsafe { r_u64(ptr.add(tail + 104)) };
+    let we = unsafe { r_u64(ptr.add(tail + 112)) };
+    let wf = unsafe { r_u64(ptr.add(tail + 120)) };
 
     let m0 = folded_multiply(w0 ^ SECRET[0], w1 ^ STRIPE_SECRET[0]);
     let m1 = folded_multiply(w2 ^ SECRET[1], w3 ^ STRIPE_SECRET[1]);

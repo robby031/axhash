@@ -56,12 +56,20 @@ impl Default for AxHasher {
     }
 }
 
+// AxBuildHasher (Router untuk HashMap)
 #[derive(Clone, Copy, Default)]
 pub struct AxBuildHasher {
     prepared_seed: u64,
 }
 
 impl AxBuildHasher {
+    #[inline(always)]
+    pub const fn new() -> Self {
+        Self {
+            prepared_seed: SECRET[0],
+        }
+    }
+
     #[inline(always)]
     pub const fn with_seed(seed: u64) -> Self {
         Self {
@@ -83,6 +91,24 @@ impl BuildHasher for AxBuildHasher {
     }
 }
 
+// Hash raw bytes non seed eksplisit (default seed = 0)
+#[inline(always)]
+pub fn axhash(bytes: &[u8]) -> u64 {
+    axhash_seeded(bytes, 0)
+}
+
+// Hash raw bytes dengan custom seed
+#[inline(always)]
+pub fn axhash_seeded(bytes: &[u8], seed: u64) -> u64 {
+    avalanche(hash_bytes_core(bytes, seed_lane(seed, 0)))
+}
+
+// Hash non seed eksplisit
+#[inline(always)]
+pub fn axhash_of<T: Hash>(data: &T) -> u64 {
+    axhash_of_seeded(data, 0)
+}
+
 #[inline(always)]
 pub fn axhash_of_seeded<T: Hash>(data: &T, seed: u64) -> u64 {
     let mut hasher = AxHasher::new_with_seed(seed);
@@ -90,20 +116,15 @@ pub fn axhash_of_seeded<T: Hash>(data: &T, seed: u64) -> u64 {
     hasher.finish()
 }
 
-#[inline(always)]
-pub fn axhash_seeded(bytes: &[u8], seed: u64) -> u64 {
-    avalanche(hash_bytes_core(bytes, seed_lane(seed, 0)))
-}
-
 impl Hasher for AxHasher {
     #[inline(always)]
     fn finish(&self) -> u64 {
         if self.sponge_bits == 0 {
-            self.acc
+            avalanche(self.acc)
         } else {
             let lo = self.sponge as u64;
             let hi = (self.sponge >> 64) as u64;
-            folded_multiply(lo ^ self.acc, hi ^ SECRET[1])
+            avalanche(folded_multiply(lo ^ self.acc, hi ^ SECRET[1]))
         }
     }
 

@@ -6,11 +6,11 @@ mod hasher;
 mod math;
 mod memory;
 
-pub use hasher::{AxBuildHasher, AxHasher, axhash_of_seeded, axhash_seeded};
+pub use hasher::{AxBuildHasher, AxHasher, axhash, axhash_of, axhash_of_seeded, axhash_seeded};
 
 #[cfg(test)]
 mod tests {
-    use super::{AxHasher, axhash_of_seeded, axhash_seeded};
+    use super::{AxHasher, axhash, axhash_of, axhash_of_seeded, axhash_seeded};
     use core::hash::{Hash, Hasher};
 
     #[derive(Hash)]
@@ -57,5 +57,25 @@ mod tests {
         hasher.write_u8(0x11);
         let value = hasher.finish();
         assert_ne!(value, 0);
+    }
+
+    #[test]
+    fn test_axhash_default_seed() {
+        let data = b"default seed test";
+        let a = axhash(data);
+        let b = axhash_seeded(data, 0); // Varian axhash harus identik dengan seed 0
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn test_axhash_of_default_seed() {
+        let record = DemoRecord {
+            id: 1,
+            shard: 2,
+            flags: 3,
+        };
+        let a = axhash_of(&record);
+        let b = axhash_of_seeded(&record, 0); // Varian axhash_of harus identik dengan seed 0
+        assert_eq!(a, b);
     }
 }
