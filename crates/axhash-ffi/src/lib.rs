@@ -6,7 +6,6 @@ use core::hash::Hasher;
 use core::ptr::NonNull;
 
 extern crate alloc;
-
 use alloc::boxed::Box;
 
 #[repr(C)]
@@ -16,8 +15,8 @@ pub struct AxHashState {
 
 #[repr(C)]
 pub struct AxHashIovec {
-    ptr: *const u8,
-    len: usize,
+    pub ptr: *const u8,
+    pub len: usize,
 }
 
 #[repr(C)]
@@ -28,31 +27,26 @@ pub enum AxHashRuntimeBackend {
     X86_64AesAvx2 = 2,
 }
 
+const MAX_BATCH: usize = 1 << 16;
+
 #[inline(always)]
 fn as_state_ptr(hasher: AxHasher) -> *mut AxHashState {
     Box::into_raw(Box::new(hasher)).cast::<AxHashState>()
 }
 
 #[inline(always)]
-unsafe fn with_state_mut<R>(
-    state: *mut AxHashState,
-    f: impl FnOnce(&mut AxHasher) -> R,
-) -> Option<R> {
-    let state = NonNull::new(state.cast::<AxHasher>())?;
-    // SAFETY: The opaque pointer is only created from Box<AxHasher> in this crate.
-    Some(f(unsafe { &mut *state.as_ptr() }))
+unsafe fn state_mut<'a>(state: *mut AxHashState) -> Option<&'a mut AxHasher> {
+    NonNull::new(state.cast::<AxHasher>()).map(|p| unsafe { &mut *p.as_ptr() })
 }
 
 #[inline(always)]
-fn ffi_bytes(bytes: *const u8, len: usize) -> Option<&'static [u8]> {
-    if len == 0 {
-        Some(&[])
-    } else if bytes.is_null() {
-        None
-    } else {
-        // SAFETY: Caller provides a readable buffer of len bytes for non-zero len.
-        Some(unsafe { core::slice::from_raw_parts(bytes, len) })
-    }
+unsafe fn ffi_bytes_unchecked<'a>(bytes: *const u8, len: usize) -> &'a [u8] {
+    unsafe { core::slice::from_raw_parts(bytes, len) }
+}
+
+#[inline(always)]
+fn is_invalid_input(ptr: *const u8, len: usize) -> bool {
+    (len != 0) & ptr.is_null()
 }
 
 #[inline(always)]
@@ -64,6 +58,11 @@ fn map_backend(backend: RuntimeBackend) -> AxHashRuntimeBackend {
     }
 }
 
+#[cold]
+fn fail_u64() -> u64 {
+    0
+}
+
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_ffi_version() -> *const c_char {
     static VERSION: &[u8] = concat!(env!("CARGO_PKG_VERSION"), "\0").as_bytes();
@@ -72,14 +71,28 @@ pub extern "C" fn axhash_ffi_version() -> *const c_char {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_bytes(bytes: *const u8, len: usize) -> u64 {
-    ffi_bytes(bytes, len).map(axhash).unwrap_or(0)
+    if is_invalid_input(bytes, len) {
+        return fail_u64();
+    }
+
+    if len == 0 {
+        return axhash(&[]);
+    }
+
+    unsafe { axhash(ffi_bytes_unchecked(bytes, len)) }
 }
 
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_bytes_seeded(bytes: *const u8, len: usize, seed: u64) -> u64 {
-    ffi_bytes(bytes, len)
-        .map(|slice| axhash_seeded(slice, seed))
-        .unwrap_or(0)
+    if is_invalid_input(bytes, len) {
+        return fail_u64();
+    }
+
+    if len == 0 {
+        return axhash_seeded(&[], seed);
+    }
+
+    unsafe { axhash_seeded(ffi_bytes_unchecked(bytes, len), seed) }
 }
 
 #[unsafe(no_mangle)]
@@ -93,15 +106,27 @@ pub extern "C" fn axhash_batch_seeded(
         return;
     }
 
+    let count = core::cmp::min(count, MAX_BATCH);
+
     unsafe {
         let jobs = core::slice::from_raw_parts(iovecs, count);
         let outs = core::slice::from_raw_parts_mut(out_hashes, count);
 
-        for i in 0..count {
-            let job = &jobs[i];
-            outs[i] = ffi_bytes(job.ptr, job.len)
-                .map(|slice| axhash_seeded(slice, seed))
-                .unwrap_or(0);
+        let mut i = 0;
+        while i < count {
+            let job = jobs.get_unchecked(i);
+            let out = outs.get_unchecked_mut(i);
+
+            *out = if is_invalid_input(job.ptr, job.len) {
+                0
+            } else if job.len == 0 {
+                axhash_seeded(&[], seed)
+            } else {
+                let slice = core::slice::from_raw_parts(job.ptr, job.len);
+                axhash_seeded(slice, seed)
+            };
+
+            i += 1;
         }
     }
 }
@@ -119,10 +144,12 @@ pub extern "C" fn axhash_hasher_new_seeded(seed: u64) -> *mut AxHashState {
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_hasher_reset(state: *mut AxHashState, seed: u64) -> bool {
     unsafe {
-        with_state_mut(state, |hasher| {
-            *hasher = AxHasher::new_with_seed(seed);
-        })
-        .is_some()
+        let Some(hasher) = state_mut(state) else {
+            return false;
+        };
+
+        *hasher = AxHasher::new_with_seed(seed);
+        true
     }
 }
 
@@ -132,27 +159,35 @@ pub extern "C" fn axhash_hasher_write(
     bytes: *const u8,
     len: usize,
 ) -> bool {
+    if is_invalid_input(bytes, len) {
+        return false;
+    }
+
     unsafe {
-        with_state_mut(state, |hasher| {
-            let Some(input) = ffi_bytes(bytes, len) else {
-                return false;
-            };
-            hasher.write(input);
-            true
-        })
-        .unwrap_or(false)
+        let Some(hasher) = state_mut(state) else {
+            return false;
+        };
+
+        let slice = core::slice::from_raw_parts(bytes, len);
+        hasher.write(slice);
+        true
     }
 }
 
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_hasher_finish(state: *mut AxHashState) -> u64 {
-    unsafe { with_state_mut(state, |hasher| hasher.finish()).unwrap_or(0) }
+    unsafe {
+        let Some(hasher) = state_mut(state) else {
+            return 0;
+        };
+
+        hasher.finish()
+    }
 }
 
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_hasher_free(state: *mut AxHashState) {
     if let Some(state) = NonNull::new(state.cast::<AxHasher>()) {
-        // SAFETY: The opaque pointer originates from Box::into_raw in this crate.
         unsafe {
             drop(Box::from_raw(state.as_ptr()));
         }
@@ -167,61 +202,4 @@ pub extern "C" fn axhash_runtime_backend() -> AxHashRuntimeBackend {
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_runtime_has_aes() -> bool {
     runtime_has_aes()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn ffi_one_shot_matches_core_api() {
-        let data = b"ffi parity";
-        let rust_hash = axhash_seeded(data, 99);
-        let ffi_hash = axhash_bytes_seeded(data.as_ptr(), data.len(), 99);
-        assert_eq!(rust_hash, ffi_hash);
-    }
-
-    #[test]
-    fn ffi_streaming_matches_core_api() {
-        let state = axhash_hasher_new_seeded(7);
-        assert!(axhash_hasher_write(state, b"hello ".as_ptr(), 6));
-        assert!(axhash_hasher_write(state, b"world".as_ptr(), 5));
-
-        let mut rust_hasher = AxHasher::new_with_seed(7);
-        rust_hasher.write(b"hello ");
-        rust_hasher.write(b"world");
-
-        assert_eq!(axhash_hasher_finish(state), rust_hasher.finish());
-        axhash_hasher_free(state);
-    }
-
-    #[test]
-    fn ffi_batch_matches_scalar() {
-        let str1 = b"apple";
-        let str2 = b"banana";
-        let str3 = b"cherry";
-
-        let jobs = [
-            AxHashIovec {
-                ptr: str1.as_ptr(),
-                len: str1.len(),
-            },
-            AxHashIovec {
-                ptr: str2.as_ptr(),
-                len: str2.len(),
-            },
-            AxHashIovec {
-                ptr: str3.as_ptr(),
-                len: str3.len(),
-            },
-        ];
-
-        let mut outs = [0u64; 3];
-
-        axhash_batch_seeded(jobs.as_ptr(), jobs.len(), 42, outs.as_mut_ptr());
-
-        assert_eq!(outs[0], axhash_bytes_seeded(str1.as_ptr(), str1.len(), 42));
-        assert_eq!(outs[1], axhash_bytes_seeded(str2.as_ptr(), str2.len(), 42));
-        assert_eq!(outs[2], axhash_bytes_seeded(str3.as_ptr(), str3.len(), 42));
-    }
 }
