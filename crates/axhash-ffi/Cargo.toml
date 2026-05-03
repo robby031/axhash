@@ -1,6 +1,6 @@
 [package]
 name = "axhash-ffi"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2024"
 description = "C-stable FFI wrapper and distribution crate for the AxHash engine."
 repository = "https://github.com/robby031/axhash"

@@ -1,38 +1,153 @@
-# axhash workspace
+# AxHash
 
-Workspace ini sekarang dipisah menjadi dua crate agar core hashing tetap bersih dan distribusi lintas bahasa tidak mencemari jalur `no_std`.
+[![Crates.io](https://img.shields.io/crates/v/axhash?style=flat-square&color=orange&logo=rust)](https://crates.io/crates/axhash)
+[![Documentation](https://img.shields.io/docsrs/axhash?style=flat-square&logo=docs.rs)](https://docs.rs/axhash)
+[![License](https://img.shields.io/crates/l/axhash?style=flat-square&color=blue)](https://crates.io/crates/axhash)
+[![Downloads](https://img.shields.io/crates/d/axhash?style=flat-square&color=darkgreen)](https://crates.io/crates/axhash)
+[![Support me on Ko-fi](https://img.shields.io/badge/Support%20me-Ko--fi-F16061?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/robby031)
 
-## Crates
+Keluarga hash function modern untuk Rust, C, dan Python. Fokus pada performa, portabilitas, dan kemudahan integrasi.
 
-- `crates/axhash-core`: engine hashing utama, API Rust, dispatch backend, dan kompatibilitas `no_std`
-- `crates/axhash-ffi`: wrapper `extern "C"`, opaque pointer, `cbindgen`, dan artefak `staticlib` / `cdylib`
-- `crates/axhash-python`: binding Python pertama berbasis `PyO3` langsung di atas `axhash-core`
+---
 
-## Build
+## Daftar Crate
 
-Core Rust:
+- **axhash-core**  
+  Mesin utama hashing, API Rust, dan kompatibilitas `no_std`.
+- **axhash-ffi**  
+  Lapisan FFI stabil untuk C/C++ dan bahasa lain, menghasilkan `staticlib`/`cdylib` dan header C otomatis.
+- **axhash-python**  
+  Binding Python berbasis PyO3, siap dipakai di ekosistem Python modern.
+
+---
+
+## Instalasi & Penggunaan
+
+### 1. Rust (`axhash-core`)
+
+Tambahkan ke `Cargo.toml`:
+
+```toml
+[dependencies]
+axhash-core = "0.1"
+```
+
+Contoh penggunaan:
+
+```rust
+use axhash_core::axhash_seeded;
+
+let hash = axhash_seeded(b"hello world", 0x1234_5678);
+println!("{hash:016x}");
+```
+
+Untuk streaming hash:
+
+```rust
+use axhash_core::AxHasher;
+use std::hash::Hasher;
+
+let mut hasher = AxHasher::with_seed(0x1234);
+hasher.write(b"data");
+let hash = hasher.finish();
+```
+
+Jalankan test:
 
 ```bash
 cargo test -p axhash-core
 ```
 
-FFI / distribusi native:
+---
+
+### 2. C/C++ dan FFI (`axhash-ffi`)
+
+Build library dan header:
 
 ```bash
 cargo build -p axhash-ffi --release
 ```
 
-Python wheel:
+Header C akan tersedia di:
+
+```
+crates/axhash-ffi/include/axhash.h
+```
+
+Contoh penggunaan di C:
+
+```c
+#include "axhash.h"
+
+uint64_t hash = axhash_seeded((const uint8_t*)"hello", 5, 0x1234);
+```
+
+---
+
+### 3. Python (`axhash-python`)
+
+Build wheel Python:
 
 ```bash
 cd crates/axhash-python
 maturin build --release
+# atau
+maturin develop
 ```
 
-## CI dan Release
+Instalasi wheel:
 
-- `.github/workflows/ci.yml` menguji workspace, memvalidasi `no_std` untuk `axhash-core`, membangun artefak native lintas target, dan membangun wheel Python
-- `.github/workflows/release.yml` mengunggah archive native dan wheel Python saat tag `v*` dibuat
-- `scripts/package-release.py` membundel header C, lisensi, README, dan library hasil build menjadi archive siap distribusi
+```bash
+pip install target/wheels/axhash_python-*.whl
+```
 
-Header C yang digenerate tersedia di `crates/axhash-ffi/include/axhash.h`.
+Contoh penggunaan:
+
+```python
+import axhash_python as axhash
+
+print(axhash.axhash(b"hello"))
+print(axhash.axhash_seeded(b"hello", 0x1234))
+
+h = axhash.Hasher(seed=0x1234)
+h.update(b"data")
+print(h.digest())
+```
+
+---
+
+## Benchmark internal menggunakan `Criterion.rs`:
+
+![Hasil Hotloop](assets/screenshot_hotloop.png)
+![Hasil Oneshoot](assets/screenshot_oneshoot.png)
+![Hasil Streaming](assets/screenshot_streaming.png)
+
+---
+
+---
+
+## CI & Rilis
+
+- Semua crate diuji otomatis di CI (`.github/workflows/ci.yml`)
+- Rilis artefak native dan wheel Python otomatis saat tag baru (`.github/workflows/release.yml`)
+- Script `scripts/package-release.py` membundel header, lisensi, README, dan library ke archive siap distribusi
+
+---
+
+## Struktur Workspace
+
+- `crates/axhash-core` — engine utama, API Rust, dan backend
+- `crates/axhash-ffi` — FFI dan distribusi native
+- `crates/axhash-python` — binding Python
+
+---
+
+## Kontribusi
+
+Kontribusi sangat terbuka! Silakan buka issue, pull request, atau diskusi jika ada ide, bug, atau kebutuhan integrasi lintas bahasa.
+
+---
+
+## Lisensi
+
+MIT. Silakan gunakan untuk kebutuhan open source maupun komersial.
