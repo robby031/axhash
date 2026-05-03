@@ -64,7 +64,7 @@ def main() -> int:
             return 1
 
         # Menggunakan resolver versi otomatis
-        version = get_resolved_version("axhash-wasm")
+        version = get_resolved_version("axhash-rs-wasm")
         archive_name = out_dir / f"axhash-wasm-{version}.tar.gz"
 
         out_dir.mkdir(parents=True, exist_ok=True)
