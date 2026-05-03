@@ -12,7 +12,7 @@
 [![FFI Downloads](https://img.shields.io/crates/d/axhash-ffi?style=flat-square&color=darkgreen)](https://crates.io/crates/axhash-ffi)
 [![Support me](https://img.shields.io/badge/Support%20me-Ko--fi-F16061?style=flat-square&logo=ko-fi)](https://ko-fi.com/robby031)
 
-Keluarga hash function modern untuk Rust, C, dan Python. Fokus pada performa, portabilitas, dan kemudahan integrasi.
+Keluarga hash function modern untuk Rust, C, Wasm, dan Python. Fokus pada performa, portabilitas, dan kemudahan integrasi.
 
 ---
 
@@ -28,147 +28,11 @@ Keluarga hash function modern untuk Rust, C, dan Python. Fokus pada performa, po
   Binding Wasm berbasis `wasm-bindgen`, siap dipakai di ekosistem Wasm modern.
 
 ---
-
-## Instalasi & Penggunaan
-
-### 1. Rust (`axhash-core`)
-
-Tambahkan ke `Cargo.toml`:
-
-```toml
-[dependencies]
-axhash-core = "0.1"
-```
-
-Contoh penggunaan:
-
-```rust
-use axhash_core::axhash_seeded;
-
-let hash = axhash_seeded(b"hello world", 0x1234_5678);
-println!("{hash:016x}");
-```
-
-Untuk streaming hash:
-
-```rust
-use axhash_core::AxHasher;
-use std::hash::Hasher;
-
-let mut hasher = AxHasher::with_seed(0x1234);
-hasher.write(b"data");
-let hash = hasher.finish();
-```
-
-Jalankan test:
-
-```bash
-cargo test -p axhash-core
-```
-
----
-
-### 2. C/C++ dan FFI (`axhash-ffi`)
-
-Build library dan header:
-
-```bash
-cargo build -p axhash-ffi --release
-```
-
-Header C akan tersedia di:
-
-```
-crates/axhash-ffi/include/axhash.h
-```
-
-Contoh penggunaan di C:
-
-```c
-#include "axhash.h"
-
-uint64_t hash = axhash_seeded((const uint8_t*)"hello", 5, 0x1234);
-```
-
----
-
-### 3. Python (`axhash-python`)
-
-Build wheel Python:
-
-```bash
-cd crates/axhash-python
-maturin build --release
-# atau
-maturin develop
-```
-
-Instalasi wheel:
-
-```bash
-pip install target/wheels/axhash_python-*.whl
-```
-
-Contoh penggunaan:
-
-```python
-import axhash_python as axhash
-
-print(axhash.axhash(b"hello"))
-print(axhash.axhash_seeded(b"hello", 0x1234))
-
-h = axhash.Hasher(seed=0x1234)
-h.update(b"data")
-print(h.digest())
-```
-
----
-
-### 4. Wasm (`axhash-wasm`)
-
-Build paket WASM:
-
-```bash
-wasm-pack build --target bundler --release
-```
-
-Install NPM:
-
-```bash
-npm i axhash-rs-wasm
-```
-
-Contoh penggunaan:
-
-```javaScript
-import init, { axhash, axhash_seeded, Hasher, runtime_backend, runtime_has_aes } from 'axhash-rs-wasm';
-
-async function run() {
-    // Inisialisasi modul WASM
-    await init();
-
-    // Siapkan data sebagai Uint8Array
-    const encoder = new TextEncoder();
-    const data = encoder.encode("hello");
-
-    // Hash langsung (Mengembalikan BigInt untuk presisi u64)
-    console.log("Simple Hash:", axhash(data));
-    console.log("Seeded Hash:", axhash_seeded(data, 0x1234n));
-
-    // Streaming hash (Stateful)
-    const h = new Hasher(0x1234n);
-    h.update(new Uint8Array([1, 2, 3]));
-    h.update(new Uint8Array([4, 5, 6]));
-    console.log("Streaming Digest:", h.digest());
-
-    // Info runtime
-    console.log("Backend:", runtime_backend());
-    console.log("Has AES Acceleration:", runtime_has_aes());
-}
-
-run();
-```
-
+Documentasi
+- [Doc Axhash-core](crates/axhash-core/README.md)
+- [Doc Axhash-ffi](crates/axhash-ffi/README.md)
+- [Doc Axhash-python](crates/axhash-python/README.md)
+- [Doc Axhash-wasm](crates/axhash-wasm/README.md)
 ---
 
 ## Benchmark internal menggunakan `Criterion.rs`:
@@ -192,7 +56,7 @@ run();
 - `crates/axhash-core` — engine utama, API Rust, dan backend
 - `crates/axhash-ffi` — FFI dan distribusi native
 - `crates/axhash-python` — binding Python
-
+- `crates/axhash-wasm` — binding WebAssembly
 ---
 
 ## Kontribusi
