@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import json
 import shutil
 import sys
 import tarfile
-import tomllib
 import zipfile
 import subprocess
 from pathlib import Path
@@ -17,6 +17,22 @@ def find_first(base: Path, patterns: list[str]) -> Path:
             return matches[0]
     raise FileNotFoundError(f"no file matching {patterns} in {base}")
 
+def get_resolved_version(package_name: str) -> str:
+   
+    try:
+        cmd = ["cargo", "metadata", "--format-version", "1", "--no-deps"]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        data = json.loads(result.stdout)
+        
+        for pkg in data["packages"]:
+            if pkg["name"] == package_name:
+                return pkg["version"]
+        
+        raise ValueError(f"Package {package_name} not found in metadata")
+    except Exception as e:
+        print(f"Error resolving version for {package_name}: {e}", file=sys.stderr)
+        sys.exit(1)
+
 
 def main() -> int:
     if len(sys.argv) != 4:
@@ -27,7 +43,7 @@ def main() -> int:
     root_dir = Path(__file__).resolve().parent.parent
     out_dir = Path(out_dir_raw).resolve()
     
-    # Target WebAssembly (WASM)
+    # --- PROSES WASM ---
     if target == "wasm32-unknown-unknown":
         wasm_pkg_dir = root_dir / "crates" / "axhash-wasm"
         wasm_out_dir = root_dir / "target" / "wasm-package"
@@ -44,14 +60,13 @@ def main() -> int:
         try:
             subprocess.run(wasm_pack_cmd, check=True)
         except FileNotFoundError:
-            print("Error: wasm-pack not found. Please install it first.", file=sys.stderr)
+            print("Error: wasm-pack not found.", file=sys.stderr)
             return 1
 
-        wasm_toml = wasm_pkg_dir / "Cargo.toml"
-        version = tomllib.loads(wasm_toml.read_text())["package"]["version"]
+        # Menggunakan resolver versi otomatis
+        version = get_resolved_version("axhash-wasm")
         archive_name = out_dir / f"axhash-wasm-{version}.tar.gz"
 
-        # Archiving folder pkg hasil wasm-pack
         out_dir.mkdir(parents=True, exist_ok=True)
         with tarfile.open(archive_name, "w:gz") as tf:
             tf.add(wasm_out_dir, arcname=".")
@@ -59,12 +74,13 @@ def main() -> int:
         print(f"WASM package created at: {archive_name}")
         return 0
 
-    # Target Native (FFI)
+    # --- PROSES NATIVE (FFI) ---
     lib_dir = root_dir / "target" / target / profile
     stage_dir = root_dir / "target" / "package" / target
     include_dir = root_dir / "crates" / "axhash-ffi" / "include"
-    cargo_toml = root_dir / "crates" / "axhash-ffi" / "Cargo.toml"
-    version = tomllib.loads(cargo_toml.read_text())["package"]["version"]
+    
+    # Menggunakan resolver versi otomatis
+    version = get_resolved_version("axhash-ffi")
     archive_base = f"axhash-ffi-{version}-{target}"
 
     if stage_dir.exists():
@@ -100,6 +116,8 @@ def main() -> int:
     with tarfile.open(archive, "w:gz") as tf:
         for path in stage_dir.rglob("*"):
             tf.add(path, arcname=path.relative_to(stage_dir))
+    
+    print(f"Native package created at: {archive}")
     return 0
 
 
