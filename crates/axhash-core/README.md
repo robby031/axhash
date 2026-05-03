@@ -8,7 +8,7 @@
 
 ### Extensions & Distribution
 
-[![Python](https://img.shields.io/pypi/v/axhash?style=flat-square&logo=python&logoColor=white&color=blue)](https://pypi.org/project/axhash-python/0.1.3/)
+[![Python](https://img.shields.io/pypi/v/axhash-python?style=flat-square&logo=python&logoColor=white&color=blue)](https://pypi.org/project/axhash-python/0.1.3/)
 [![FFI Downloads](https://img.shields.io/crates/d/axhash-ffi?style=flat-square&color=darkgreen)](https://crates.io/crates/axhash-ffi)
 [![Support me](https://img.shields.io/badge/Support%20me-Ko--fi-F16061?style=flat-square&logo=ko-fi)](https://ko-fi.com/robby031)
 
