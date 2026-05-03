@@ -6,6 +6,7 @@ import sys
 import tarfile
 import tomllib
 import zipfile
+import subprocess
 from pathlib import Path
 
 
@@ -24,8 +25,42 @@ def main() -> int:
 
     target, profile, out_dir_raw = sys.argv[1:]
     root_dir = Path(__file__).resolve().parent.parent
-    lib_dir = root_dir / "target" / target / profile
     out_dir = Path(out_dir_raw).resolve()
+    
+    # Target WebAssembly (WASM)
+    if target == "wasm32-unknown-unknown":
+        wasm_pkg_dir = root_dir / "crates" / "axhash-wasm"
+        wasm_out_dir = root_dir / "target" / "wasm-package"
+        
+        print(f"--- Building WASM for {profile} profile ---")
+        
+        wasm_pack_cmd = [
+            "wasm-pack", "build", str(wasm_pkg_dir),
+            "--target", "bundler",
+            "--out-dir", str(wasm_out_dir),
+            "--release" if profile == "release" else "--dev"
+        ]
+        
+        try:
+            subprocess.run(wasm_pack_cmd, check=True)
+        except FileNotFoundError:
+            print("Error: wasm-pack not found. Please install it first.", file=sys.stderr)
+            return 1
+
+        wasm_toml = wasm_pkg_dir / "Cargo.toml"
+        version = tomllib.loads(wasm_toml.read_text())["package"]["version"]
+        archive_name = out_dir / f"axhash-wasm-{version}.tar.gz"
+
+        # Archiving folder pkg hasil wasm-pack
+        out_dir.mkdir(parents=True, exist_ok=True)
+        with tarfile.open(archive_name, "w:gz") as tf:
+            tf.add(wasm_out_dir, arcname=".")
+        
+        print(f"WASM package created at: {archive_name}")
+        return 0
+
+    # Target Native (FFI)
+    lib_dir = root_dir / "target" / target / profile
     stage_dir = root_dir / "target" / "package" / target
     include_dir = root_dir / "crates" / "axhash-ffi" / "include"
     cargo_toml = root_dir / "crates" / "axhash-ffi" / "Cargo.toml"

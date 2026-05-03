@@ -12,4 +12,5 @@ pub(crate) const STRIPE_SECRET: [u64; 4] = [
     0x5899_65cc_7537_4cc3,
 ];
 
+#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
 pub(crate) const FINAL_MIX: u64 = 0xbf58_476d_1ce4_e5b9;

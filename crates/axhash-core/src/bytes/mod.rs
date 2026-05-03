@@ -1,4 +1,6 @@
-use crate::constants::{FINAL_MIX, SECRET, STRIPE_SECRET};
+#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+use crate::constants::FINAL_MIX;
+use crate::constants::{SECRET, STRIPE_SECRET};
 use crate::math::{avalanche, folded_multiply};
 use crate::memory::{r_u32, r_u64};
 
@@ -193,8 +195,7 @@ pub(crate) fn selected_backend() -> Backend {
 #[cfg(all(target_arch = "x86_64", feature = "std"))]
 #[inline(always)]
 pub(crate) fn selected_backend() -> Backend {
-    if std::arch::is_x86_feature_detected!("aes") && std::arch::is_x86_feature_detected!("avx2")
-    {
+    if std::arch::is_x86_feature_detected!("aes") && std::arch::is_x86_feature_detected!("avx2") {
         Backend::X86_64AesAvx2
     } else {
         Backend::Scalar
@@ -228,6 +229,7 @@ pub(crate) fn selected_backend() -> Backend {
     Backend::Scalar
 }
 
+#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
 #[inline(always)]
 pub(super) fn finalize_vector(lo: u64, hi: u64, len: usize) -> u64 {
     folded_multiply(lo ^ FINAL_MIX, hi ^ (len as u64))

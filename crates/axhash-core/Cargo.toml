@@ -1,10 +1,12 @@
 [package]
 name = "axhash-core"
-version = "0.1.4"
-edition = "2024"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
 description = "Platform-agnostic AxHash core for Rust with no_std compatibility."
-repository = "https://github.com/robby031/axhash"
-license = "MIT"
 readme = "README.md"
 keywords = ["hash", "hashing", "performance", "no_std", "non-cryptographic"]
 categories = ["algorithms", "no-std"]

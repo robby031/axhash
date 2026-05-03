@@ -122,13 +122,58 @@ print(h.digest())
 
 ---
 
+### 4. Wasm (`axhash-wasm`)
+
+Build paket WASM:
+
+```bash
+wasm-pack build --target bundler --release
+```
+
+Install NPM:
+
+```bash
+npm install axhash-wasm
+```
+
+Contoh penggunaan:
+
+```javaScript
+import init, { axhash, axhash_seeded, Hasher, runtime_backend, runtime_has_aes } from 'axhash-wasm';
+
+async function run() {
+    // Inisialisasi modul WASM
+    await init();
+
+    // Siapkan data sebagai Uint8Array
+    const encoder = new TextEncoder();
+    const data = encoder.encode("hello");
+
+    // Hash langsung (Mengembalikan BigInt untuk presisi u64)
+    console.log("Simple Hash:", axhash(data));
+    console.log("Seeded Hash:", axhash_seeded(data, 0x1234n));
+
+    // Streaming hash (Stateful)
+    const h = new Hasher(0x1234n);
+    h.update(new Uint8Array([1, 2, 3]));
+    h.update(new Uint8Array([4, 5, 6]));
+    console.log("Streaming Digest:", h.digest());
+
+    // Info runtime
+    console.log("Backend:", runtime_backend());
+    console.log("Has AES Acceleration:", runtime_has_aes());
+}
+
+run();
+```
+
+---
+
 ## Benchmark internal menggunakan `Criterion.rs`:
 
 ![Hasil Hotloop](assets/screenshot_hotloop.png)
 ![Hasil Oneshoot](assets/screenshot_oneshoot.png)
 ![Hasil Streaming](assets/screenshot_streaming.png)
-
----
 
 ---
 

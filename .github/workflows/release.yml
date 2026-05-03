@@ -10,8 +10,8 @@ permissions:
   contents: write
 
 jobs:
-  release-native:
-    name: Release Native ${{ matrix.target }}
+  release-native-and-wasm:
+    name: Release ${{ matrix.target }}
     strategy:
       fail-fast: false
       matrix:
@@ -22,25 +22,40 @@ jobs:
             target: x86_64-unknown-linux-gnu
           - os: windows-2022
             target: x86_64-pc-windows-msvc
+          - os: ubuntu-22.04
+            target: wasm32-unknown-unknown
+            is_wasm: true
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+
+      - name: Install wasm-pack
+        if: matrix.is_wasm
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - uses: Swatinem/rust-cache@v2
+
       - name: Build FFI release
+        if: "!matrix.is_wasm"
         run: cargo build -p axhash-ffi --release --target ${{ matrix.target }}
+
       - name: Package release archive
         run: |
           python scripts/package-release.py "${{ matrix.target }}" release "$PWD/dist"
-      - name: Upload archive
+
+      - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*
+          generate_release_notes: true
 
   release-python:
     name: Release Wheel ${{ matrix.target }}
@@ -74,7 +89,7 @@ jobs:
           target: ${{ matrix.target }}
           args: --release --out dist
           working-directory: crates/axhash-python
-      - name: Upload wheel
+      - name: Upload wheel to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: crates/axhash-python/dist/*

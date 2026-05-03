@@ -1,10 +1,12 @@
 [package]
 name = "axhash-python"
-version = "0.1.4"
-edition = "2024"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
 description = "Python bindings for the AxHash engine built with PyO3."
-repository = "https://github.com/robby031/axhash"
-license = "MIT"
 readme = "README.md"
 keywords = ["python", "pyo3", "hash", "binding"]
 categories = ["api-bindings"]
@@ -14,8 +16,8 @@ name = "axhash_python"
 crate-type = ["cdylib"]
 
 [dependencies]
-axhash-core = { path = "../axhash-core", features = ["std"] }
-pyo3 = { version = "0.28.3", features = ["abi3-py39", "extension-module"] }
+axhash-core.workspace = true
+pyo3.workspace = true
 
 [package.metadata.maturin]
 python-source = "python"

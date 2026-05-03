@@ -1,10 +1,12 @@
 [package]
 name = "axhash-ffi"
-version = "0.1.4"
-edition = "2024"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
 description = "C-stable FFI wrapper and distribution crate for the AxHash engine."
-repository = "https://github.com/robby031/axhash"
-license = "MIT"
 readme = "README.md"
 keywords = ["hash", "ffi", "c-api", "staticlib", "cdylib"]
 categories = ["algorithms", "api-bindings"]
@@ -14,7 +16,7 @@ build = "build.rs"
 crate-type = ["rlib", "staticlib", "cdylib"]
 
 [dependencies]
-axhash-core = { version = "0.1.4", path = "../axhash-core", features = ["std"] }
+axhash-core.workspace = true
 
 [build-dependencies]
 cbindgen = "0.29.2"
