@@ -135,13 +135,13 @@ wasm-pack build --target bundler --release
 Install NPM:
 
 ```bash
-npm install axhash-wasm
+npm i axhash-rs-wasm
 ```
 
 Contoh penggunaan:
 
 ```javaScript
-import init, { axhash, axhash_seeded, Hasher, runtime_backend, runtime_has_aes } from 'axhash-wasm';
+import init, { axhash, axhash_seeded, Hasher, runtime_backend, runtime_has_aes } from 'axhash-rs-wasm';
 
 async function run() {
     // Inisialisasi modul WASM
