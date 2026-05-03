@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import shutil
+import sys
+import tarfile
+import tomllib
+import zipfile
+from pathlib import Path
+
+
+def find_first(base: Path, patterns: list[str]) -> Path:
+    for pattern in patterns:
+        matches = sorted(base.glob(pattern))
+        if matches:
+            return matches[0]
+    raise FileNotFoundError(f"no file matching {patterns} in {base}")
+
+
+def main() -> int:
+    if len(sys.argv) != 4:
+        print("usage: package-release.py <target> <profile> <out-dir>", file=sys.stderr)
+        return 1
+
+    target, profile, out_dir_raw = sys.argv[1:]
+    root_dir = Path(__file__).resolve().parent.parent
+    lib_dir = root_dir / "target" / target / profile
+    out_dir = Path(out_dir_raw).resolve()
+    stage_dir = root_dir / "target" / "package" / target
+    include_dir = root_dir / "crates" / "axhash-ffi" / "include"
+    cargo_toml = root_dir / "crates" / "axhash-ffi" / "Cargo.toml"
+    version = tomllib.loads(cargo_toml.read_text())["package"]["version"]
+    archive_base = f"axhash-ffi-{version}-{target}"
+
+    if stage_dir.exists():
+        shutil.rmtree(stage_dir)
+    (stage_dir / "include").mkdir(parents=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    shutil.copy2(root_dir / "LICENSE-MIT", stage_dir / "LICENSE-MIT")
+    shutil.copy2(root_dir / "crates" / "axhash-ffi" / "README.md", stage_dir / "README.md")
+    shutil.copy2(include_dir / "axhash.h", stage_dir / "include" / "axhash.h")
+
+    if "windows-msvc" in target:
+        bins = [
+            find_first(lib_dir, ["axhash_ffi.dll", "axhash-ffi.dll"]),
+            find_first(lib_dir, ["axhash_ffi.lib", "axhash-ffi.lib"]),
+        ]
+        for item in bins:
+            shutil.copy2(item, stage_dir / item.name)
+
+        archive = out_dir / f"{archive_base}.zip"
+        with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for path in stage_dir.rglob("*"):
+                if path.is_file():
+                    zf.write(path, path.relative_to(stage_dir))
+        return 0
+
+    shared_name = "libaxhash_ffi.dylib" if "apple-darwin" in target else "libaxhash_ffi.so"
+    files = [find_first(lib_dir, ["libaxhash_ffi.a"]), find_first(lib_dir, [shared_name])]
+    for item in files:
+        shutil.copy2(item, stage_dir / item.name)
+
+    archive = out_dir / f"{archive_base}.tar.gz"
+    with tarfile.open(archive, "w:gz") as tf:
+        for path in stage_dir.rglob("*"):
+            tf.add(path, arcname=path.relative_to(stage_dir))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

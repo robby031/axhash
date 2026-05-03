@@ -1,139 +1,38 @@
-# axhash
+# axhash workspace
 
-[![Crates.io](https://img.shields.io/crates/v/axhash?style=flat-square&color=orange&logo=rust)](https://crates.io/crates/axhash)
-[![Documentation](https://img.shields.io/docsrs/axhash?style=flat-square&logo=docs.rs)](https://docs.rs/axhash)
-[![License](https://img.shields.io/crates/l/axhash?style=flat-square&color=blue)](https://crates.io/crates/axhash)
-[![Downloads](https://img.shields.io/crates/d/axhash?style=flat-square&color=darkgreen)](https://crates.io/crates/axhash)
-[![Support me on Ko-fi](https://img.shields.io/badge/Support%20me-Ko--fi-F16061?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/robby031)
+Workspace ini sekarang dipisah menjadi dua crate agar core hashing tetap bersih dan distribusi lintas bahasa tidak mencemari jalur `no_std`.
 
-axhash adalah hash function non-cryptographic untuk Rust yang dirancang untuk performa tinggi, distribusi bit yang merata, dan efisiensi pada workload nyata, khususnya pada key kecil hingga menengah dan penggunaan di struktur data seperti HashMap.
+## Crates
 
-## Apa yang Baru di v0.1.2?
+- `crates/axhash-core`: engine hashing utama, API Rust, dispatch backend, dan kompatibilitas `no_std`
+- `crates/axhash-ffi`: wrapper `extern "C"`, opaque pointer, `cbindgen`, dan artefak `staticlib` / `cdylib`
+- `crates/axhash-python`: binding Python pertama berbasis `PyO3` langsung di atas `axhash-core`
 
-- Dokumentasi penggunaan diperbarui dan diperjelas untuk semua API publik
-- Contoh penggunaan lebih lengkap untuk berbagai skenario (hash bytes, hash struct, integrasi HashMap, custom seed)
-- Perbaikan minor pada dokumentasi dan penjelasan API
+## Build
 
-## Fitur Utama
+Core Rust:
 
-- Kompatibel `no_std`, tanpa alokasi memori pada jalur utama
-- Deterministik dan seeded, cocok untuk kebutuhan `indexing`, `cache`, dan `struktur data`
-- Tidak bergantung pada crate eksternal
-- Performa baik pada key kecil, menengah maupun payload besar
-- Dirancang agar tahan terhadap collision attack pada workload umum `bukan kriptografi`
-
-## Instalasi
-
-Tambahkan ke Cargo.toml:
-
-```toml
-[dependencies]
-axhash = "0.1.1"
+```bash
+cargo test -p axhash-core
 ```
 
-## Benchmark (Apple M4)
+FFI / distribusi native:
 
-Hasil benchmark internal menggunakan `Criterion.rs`:
-
-![Hasil Hotloop](assets/screenshot_hotloop.png)
-![Hasil Oneshoot](assets/screenshot_oneshoot.png)
-![Hasil Streaming](assets/screenshot_streaming.png)
-
-## API Publik & Contoh Penggunaan
-
-### 1. Hash Bytes
-
-Hash bytes dengan seed default (0):
-
-```rust
-use axhash::axhash;
-let hash = axhash(b"axhash super power");
-println!("Hash: {hash:016x}");
+```bash
+cargo build -p axhash-ffi --release
 ```
 
-Hash bytes dengan custom seed:
+Python wheel:
 
-```rust
-use axhash::axhash_seeded;
-let hash = axhash_seeded(b"axhash super power", 0x1234_5678);
-println!("Hash: {hash:016x}");
+```bash
+cd crates/axhash-python
+maturin build --release
 ```
 
-### 2. Hash Tipe/Struct Apapun (Trait Hash)
+## CI dan Release
 
-Hash struct/tipe apapun yang mengimplementasikan trait `Hash`:
+- `.github/workflows/ci.yml` menguji workspace, memvalidasi `no_std` untuk `axhash-core`, membangun artefak native lintas target, dan membangun wheel Python
+- `.github/workflows/release.yml` mengunggah archive native dan wheel Python saat tag `v*` dibuat
+- `scripts/package-release.py` membundel header C, lisensi, README, dan library hasil build menjadi archive siap distribusi
 
-```rust
-use axhash::axhash_of;
-#[derive(Hash)]
-struct DemoRecord {
-	id: u64,
-	shard: u32,
-	flags: u32,
-}
-let record = DemoRecord { id: 1, shard: 2, flags: 3 };
-let hash = axhash_of(&record);
-println!("Hash: {hash:016x}");
-```
-
-Hash struct dengan custom seed:
-
-```rust
-use axhash::axhash_of_seeded;
-let hash = axhash_of_seeded(&record, 0xDEADC0DE);
-println!("Hash: {hash:016x}");
-```
-
-### 3. Integrasi dengan HashMap
-
-axhash menyediakan `AxBuildHasher` untuk integrasi mudah dengan `HashMap`:
-
-```rust
-use axhash::AxBuildHasher;
-use std::collections::HashMap;
-let mut map = HashMap::with_hasher(AxBuildHasher::with_seed(0xDEADC0DE));
-map.insert("key", "performance");
-```
-
-Jika ingin seed default:
-
-```rust
-let mut map = HashMap::with_hasher(AxBuildHasher::new());
-```
-
-### 4. Penggunaan Manual Hasher
-
-Jika ingin kontrol penuh, gunakan `AxHasher` secara manual:
-
-```rust
-use axhash::AxHasher;
-use core::hash::Hasher;
-let mut hasher = AxHasher::new_with_seed(0x4444);
-hasher.write_u64(0x0102_0304_0506_0708);
-hasher.write_u32(0xaabb_ccdd);
-hasher.write_u16(0xeeff);
-hasher.write_u8(0x11);
-let value = hasher.finish();
-println!("Hash: {value:016x}");
-```
-
-## Penjelasan API
-
-- `axhash(bytes: &[u8]) -> u64` — Hash bytes dengan seed default (0)
-- `axhash_seeded(bytes: &[u8], seed: u64) -> u64` — Hash bytes dengan seed custom
-- `axhash_of<T: Hash>(data: &T) -> u64` — Hash tipe/struct apapun yang implementasi trait `Hash` (seed default)
-- `axhash_of_seeded<T: Hash>(data: &T, seed: u64) -> u64` — Hash tipe/struct apapun dengan seed custom
-- `AxBuildHasher` — Untuk integrasi dengan HashMap, mendukung seed custom
-- `AxHasher` — Hasher manual, implementasi trait `Hasher`
-
-## Desain Singkat
-
-axhash menggabungkan folded multiplication, branchless path untuk key kecil, dan teknik permutasi state untuk memastikan difusi bit yang merata dan performa konsisten pada berbagai ukuran data.
-
-## Batasan
-
-axhash bukan hash function kriptografi. `Jangan gunakan untuk password, tanda tangan digital, atau kebutuhan keamanan tingkat tinggi.`
-
-## Lisensi
-
-Proyek ini dirilis di bawah lisensi MIT.
+Header C yang digenerate tersedia di `crates/axhash-ffi/include/axhash.h`.
