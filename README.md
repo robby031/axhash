@@ -24,6 +24,8 @@ Keluarga hash function modern untuk Rust, C, dan Python. Fokus pada performa, po
   Lapisan FFI stabil untuk C/C++ dan bahasa lain, menghasilkan `staticlib`/`cdylib` dan header C otomatis.
 - **axhash-python**  
   Binding Python berbasis PyO3, siap dipakai di ekosistem Python modern.
+- **axhash-wasm**  
+  Binding Wasm berbasis `wasm-bindgen`, siap dipakai di ekosistem Wasm modern.
 
 ---
 
