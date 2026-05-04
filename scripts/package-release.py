@@ -18,7 +18,7 @@ def find_first(base: Path, patterns: list[str]) -> Path:
     raise FileNotFoundError(f"no file matching {patterns} in {base}")
 
 def get_resolved_version(package_name: str) -> str:
-    """Mengambil versi paket langsung dari cargo metadata."""
+
     try:
         cmd = ["cargo", "metadata", "--format-version", "1", "--no-deps"]
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -42,6 +42,14 @@ def main() -> int:
     target, profile, out_dir_raw = sys.argv[1:]
     root_dir = Path(__file__).resolve().parent.parent
     out_dir = Path(out_dir_raw).resolve()
+
+    if out_dir.exists():
+        for f in out_dir.iterdir():
+            if f.is_file() or f.is_symlink():
+                f.unlink()
+            elif f.is_dir():
+                shutil.rmtree(f)
+    out_dir.mkdir(parents=True, exist_ok=True)
     
     # --- PROSES WASM ---
     if target == "wasm32-unknown-unknown":
