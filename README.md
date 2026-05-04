@@ -1,70 +1,128 @@
 # AxHash
 
-### Core Engine (Rust)
+AxHash is a fast, deterministic hashing family for Rust, C/C++, Python, and WebAssembly.
 
-[![Crates.io](https://img.shields.io/crates/v/axhash-core?style=flat-square&color=orange&logo=rust)](https://crates.io/crates/axhash-core)
-[![Documentation](https://img.shields.io/docsrs/axhash-core?style=flat-square&logo=docs.rs)](https://docs.rs/axhash-core)
-[![Downloads](https://img.shields.io/crates/d/axhash-core?style=flat-square&color=darkgreen)](https://crates.io/crates/axhash-core)
+If you only need AxHash in Rust, start with the `axhash` crate from this workspace. It is the simplest entrypoint and re-exports the core engine with a friendlier import path.
 
-### Extensions & Distribution
+## Pick The Right Package
 
-[![Python](https://img.shields.io/pypi/v/axhash-python?style=flat-square&logo=python&logoColor=white&color=blue)](https://pypi.org/project/axhash-python/)
-[![FFI Downloads](https://img.shields.io/crates/d/axhash-ffi?style=flat-square&color=darkgreen)](https://crates.io/crates/axhash-ffi)
-[![Support me](https://img.shields.io/badge/Support%20me-Ko--fi-F16061?style=flat-square&logo=ko-fi)](https://ko-fi.com/robby031)
+- Rust: `axhash`
+- C / C++ / Go / Zig / Swift / Kotlin Native: `axhash-ffi`
+- Python: `axhash-python`
+- Web / Node.js / Edge runtimes: `axhash-wasm`
+- Internal engine / `no_std`: `axhash-core`
 
-Keluarga hash function modern untuk Rust, C, Wasm, dan Python. Fokus pada performa, portabilitas, dan kemudahan integrasi.
+## Rust Quick Start
 
----
+Add the simplest Rust package:
 
-## Daftar Crate
+```toml
+[dependencies]
+axhash = "0.4.3"
+```
 
-- **axhash-core**  
-  Mesin utama hashing, API Rust, dan kompatibilitas `no_std`.
-- **axhash-ffi**  
-  Lapisan FFI stabil untuk C/C++ dan bahasa lain, menghasilkan `staticlib`/`cdylib` dan header C otomatis.
-- **axhash-python**  
-  Binding Python berbasis PyO3, siap dipakai di ekosistem Python modern.
-- **axhash-wasm**  
-  Binding Wasm berbasis `wasm-bindgen`, siap dipakai di ekosistem Wasm modern.
+Hash raw bytes:
 
----
-Documentasi
-- [Doc Axhash-core](crates/axhash-core/README.md)
-- [Doc Axhash-ffi](crates/axhash-ffi/README.md)
-- [Doc Axhash-python](crates/axhash-python/README.md)
-- [Doc Axhash-wasm](crates/axhash-wasm/README.md)
----
+```rust
+use axhash::hash;
 
-## Benchmark internal menggunakan `Criterion.rs`:
+fn main() {
+    let digest = hash(b"hello axhash");
+    println!("{digest:016x}");
+}
+```
 
-![Hasil Hotloop](assets/screenshot_hotloop.png)
-![Hasil Oneshoot](assets/screenshot_oneshoot.png)
-![Hasil Streaming](assets/screenshot_streaming.png)
+Hash raw bytes with a seed:
 
----
+```rust
+use axhash::hash_with_seed;
 
-## CI & Rilis
+fn main() {
+    let digest = hash_with_seed(b"hello axhash", 0x1234_5678);
+    println!("{digest:016x}");
+}
+```
 
-- Semua crate diuji otomatis di CI (`.github/workflows/ci.yml`)
-- Rilis artefak native dan wheel Python otomatis saat tag baru (`.github/workflows/release.yml`)
-- Script `scripts/package-release.py` membundel header, lisensi, README, dan library ke archive siap distribusi
+Hash any Rust value that implements `Hash`:
 
----
+```rust
+use axhash::hash_value;
 
-## Struktur Workspace
+#[derive(Hash)]
+struct SessionKey {
+    account_id: u64,
+    region_id: u32,
+    flags: u32,
+}
 
-- `crates/axhash-core` — engine utama, API Rust, dan backend
-- `crates/axhash-ffi` — FFI dan distribusi native
-- `crates/axhash-python` — binding Python
-- `crates/axhash-wasm` — binding WebAssembly
----
+fn main() {
+    let key = SessionKey {
+        account_id: 42,
+        region_id: 7,
+        flags: 3,
+    };
 
-## Kontribusi
+    let digest = hash_value(&key);
+    println!("{digest:016x}");
+}
+```
 
-Kontribusi sangat terbuka! Silakan buka issue, pull request, atau diskusi jika ada ide, bug, atau kebutuhan integrasi lintas bahasa.
+Use the streaming hasher:
 
----
+```rust
+use axhash::Hasher;
+use std::hash::Hasher as _;
 
-## Lisensi
+fn main() {
+    let mut hasher = Hasher::new_with_seed(0x4444);
+    hasher.write(b"hello ");
+    hasher.write(b"world");
 
-MIT. Silakan gunakan untuk kebutuhan open source maupun komersial.
+    println!("{:016x}", hasher.finish());
+}
+```
+
+Use AxHash with `HashMap`:
+
+```rust
+use axhash::BuildHasher;
+use std::collections::HashMap;
+
+fn main() {
+    let mut map = HashMap::with_hasher(BuildHasher::with_seed(0xfeed_beef));
+    map.insert("status", "ok");
+    map.insert("runtime", "fast");
+
+    println!("{:?}", map.get("status"));
+}
+```
+
+Inspect the active backend:
+
+```rust
+use axhash::{runtime_backend, runtime_has_aes};
+
+fn main() {
+    println!("{:?}", runtime_backend());
+    println!("{}", runtime_has_aes());
+}
+```
+
+## Workspace Layout
+
+- [axhash-core](crates/axhash-core/README.md): low-level Rust core and `no_std` engine
+- [axhash-ffi](crates/axhash-ffi/README.md): stable C ABI
+- [axhash-python](crates/axhash-python/README.md): Python bindings
+- [axhash-wasm](crates/axhash-wasm/README.md): WebAssembly bindings
+
+## Benchmarks
+
+Internal Criterion screenshots:
+
+![Hotloop](assets/screenshot_hotloop.png)
+![One-shot](assets/screenshot_oneshoot.png)
+![Streaming](assets/screenshot_streaming.png)
+
+## License
+
+MIT.

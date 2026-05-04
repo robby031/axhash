@@ -1,59 +1,90 @@
 # axhash-python
 
-Binding Python untuk engine AxHash, dibangun langsung di atas `axhash-core` menggunakan PyO3. Mudah digunakan untuk kebutuhan hash cepat di ekosistem Python.
+`axhash-python` provides Python bindings for AxHash through `PyO3`.
 
----
+The package is installed as `axhash-python`, but the import name is simply:
 
-## Instalasi
+```python
+import axhash
+```
 
-Build wheel (butuh Rust dan maturin):
+## Build Or Install
+
+Build a wheel locally:
 
 ```bash
 maturin build --release
-# atau untuk pengembangan
+```
+
+Install in development mode:
+
+```bash
 maturin develop
 ```
 
-Install wheel hasil build:
+## Examples
 
-```bash
-pip install target/wheels/axhash_python-*.whl
-```
-
----
-
-## API Utama
-
-- `axhash(data: bytes) -> int` — Hash cepat tanpa seed
-- `axhash_seeded(data: bytes, seed: int) -> int` — Hash dengan seed custom
-- `runtime_backend() -> str` — Info backend yang dipakai
-- `runtime_has_aes() -> bool` — Deteksi akselerasi AES
-- `Hasher(seed: int = 0)` — Streaming hash (update/incremental)
-
----
-
-## Contoh Penggunaan
+Hash bytes with the default seed:
 
 ```python
-import axhash_python as axhash
+import axhash
 
-# Hash langsung
-print(axhash.axhash(b"hello"))
-print(axhash.axhash_seeded(b"hello", 0x1234))
+print(axhash.axhash(b"hello axhash"))
+```
 
-# Streaming hash
-h = axhash.Hasher(seed=0x1234)
-h.update(b"data1")
-h.update(b"data2")
+Hash bytes with a custom seed:
+
+```python
+import axhash
+
+print(axhash.axhash_seeded(b"hello axhash", 0x12345678))
+```
+
+Use the streaming hasher:
+
+```python
+import axhash
+
+h = axhash.Hasher(seed=0x4444)
+h.update(b"hello ")
+h.update(b"world")
+print(h.digest())
+```
+
+Reset and reuse the hasher:
+
+```python
+import axhash
+
+h = axhash.Hasher()
+h.update(b"first payload")
 print(h.digest())
 
-# Info runtime
+h.reset(7)
+h.update(b"second payload")
+print(h.digest())
+```
+
+Inspect runtime capabilities:
+
+```python
+import axhash
+
 print(axhash.runtime_backend())
 print(axhash.runtime_has_aes())
 ```
 
----
+## API
 
-## Lisensi
+- `axhash(data: bytes) -> int`
+- `axhash_seeded(data: bytes, seed: int) -> int`
+- `Hasher(seed: int = 0)`
+- `Hasher.update(data: bytes) -> None`
+- `Hasher.digest() -> int`
+- `Hasher.reset(seed: int) -> None`
+- `runtime_backend() -> str`
+- `runtime_has_aes() -> bool`
 
-MIT. Bebas digunakan untuk open source maupun komersial.
+## License
+
+MIT.

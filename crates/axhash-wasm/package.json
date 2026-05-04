@@ -1,5 +1,5 @@
 {
-  "name": "axhash-rs-wasm",
+  "name": "axhash-wasm",
   "version": "0.4.3",
   "description": "WebAssembly bindings for the AxHash engine",
   "collaborators": [

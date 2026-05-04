@@ -12,7 +12,7 @@ keywords = ["python", "pyo3", "hash", "binding"]
 categories = ["api-bindings"]
 
 [lib]
-name = "axhash_python"
+name = "axhash"
 crate-type = ["cdylib"]
 
 [dependencies]
@@ -21,4 +21,4 @@ pyo3.workspace = true
 
 [package.metadata.maturin]
 python-source = "python"
-module-name = "axhash_python._axhash_python"
+module-name = "axhash._axhash"

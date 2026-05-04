@@ -60,7 +60,7 @@ impl Hasher {
 }
 
 #[pymodule]
-fn _axhash_python(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _axhash(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Hasher>()?;
     m.add_function(wrap_pyfunction!(axhash_py, m)?)?;
     m.add_function(wrap_pyfunction!(axhash_seeded_py, m)?)?;

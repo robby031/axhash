@@ -1,3 +1,18 @@
+[package]
+name = "axhash"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Simple Rust entrypoint for the AxHash engine."
+readme = "README.md"
+keywords = ["hash", "hashing", "performance", "hasher"]
+categories = ["algorithms"]
+
+[dependencies]
+axhash-core.workspace = true
+
 [workspace]
 members = [
     "crates/axhash-core",

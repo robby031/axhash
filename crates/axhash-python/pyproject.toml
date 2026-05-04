@@ -21,4 +21,4 @@ classifiers = [
 
 [tool.maturin]
 python-source = "python"
-module-name = "axhash_python._axhash_python"
+module-name = "axhash._axhash"
