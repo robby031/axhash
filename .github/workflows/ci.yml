@@ -56,6 +56,12 @@ jobs:
         if: matrix.is_wasm
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
+      - name: Install ARM64 linker
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -64,6 +70,9 @@ jobs:
 
       - name: Build FFI crate
         if: "!matrix.is_wasm"
+        env:
+          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
         run: cargo build -p axhash-ffi --release --target ${{ matrix.target }}
 
       - name: Package artifacts
