@@ -68,6 +68,12 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
+      - name: Build WASM crate (SIMD)
+        if: matrix.is_wasm
+        env:
+          RUSTFLAGS: "-C target-feature=+simd128"
+        run: cargo build -p axhash-wasm --release --target wasm32-unknown-unknown
+
       - name: Build FFI crate
         if: "!matrix.is_wasm"
         env:
