@@ -3,6 +3,12 @@ use axhash_core::{
 };
 use core::hash::Hasher as _;
 use wasm_bindgen::prelude::*;
+use std::cell::RefCell;
+
+const BUF_SIZE: usize = 64 * 1024;
+thread_local! {
+       static INTERNAL_BUF: RefCell<Vec<u8>> = RefCell::new(vec![0u8; BUF_SIZE]);
+}
 
 fn backend_name(backend: RuntimeBackend) -> &'static str {
     match backend {
@@ -35,6 +41,7 @@ pub fn runtime_has_aes_wasm() -> bool {
 #[wasm_bindgen]
 pub struct Hasher {
     inner: AxHasher,
+    buf: Vec<u8>,
 }
 
 #[wasm_bindgen]
@@ -43,15 +50,31 @@ impl Hasher {
     pub fn new(seed: Option<u64>) -> Self {
         Self {
             inner: AxHasher::new_with_seed(seed.unwrap_or(0)),
+            buf: vec![0u8; BUF_SIZE],
         }
     }
 
     pub fn reset(&mut self, seed: u64) {
         self.inner = AxHasher::new_with_seed(seed);
+        self.buf.fill(0);
     }
 
     pub fn update(&mut self, data: &[u8]) {
-        self.inner.write(data);
+        let mut offset = 0;
+        let len = data.len();
+        while offset < len {
+            let end = usize::min(offset + BUF_SIZE, len);
+            let chunk = &data[offset..end];
+
+            if chunk.len() < BUF_SIZE {
+                self.buf[..chunk.len()].copy_from_slice(chunk);
+                self.inner.write(&self.buf[..chunk.len()]);
+            } else {
+                self.inner.write(chunk);
+            }
+
+            offset += chunk.len();
+        }
     }
 
     pub fn digest(&self) -> u64 {
