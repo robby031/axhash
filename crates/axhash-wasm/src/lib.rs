@@ -1,9 +1,9 @@
-use axhash_core::{
-    AxHasher, RuntimeBackend, axhash, axhash_seeded, runtime_backend, runtime_has_aes,
-};
+use axhash_core::hash::AxHasher;
+use axhash_core::hash::api::{axhash, axhash_seeded};
+use axhash_core::{RuntimeBackend, runtime_backend, runtime_has_aes};
 use core::hash::Hasher as _;
-use wasm_bindgen::prelude::*;
 use std::cell::RefCell;
+use wasm_bindgen::prelude::*;
 
 const BUF_SIZE: usize = 64 * 1024;
 thread_local! {

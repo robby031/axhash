@@ -1,14 +1,6 @@
-pub use axhash_core::{
-    AxBuildHasher,
-    AxHasher,
-    RuntimeBackend,
-    axhash,
-    axhash_of,
-    axhash_of_seeded,
-    axhash_seeded,
-    runtime_backend,
-    runtime_has_aes,
-};
+pub use axhash_core::hash::AxHasher;
+pub use axhash_core::hash::api::{axhash, axhash_of, axhash_of_seeded, axhash_seeded};
+pub use axhash_core::hash::build::AxBuildHasher;
 
 pub type Hasher = AxHasher;
 pub type BuildHasher = AxBuildHasher;

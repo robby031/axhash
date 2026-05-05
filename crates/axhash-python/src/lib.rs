@@ -1,4 +1,6 @@
-use axhash_core::{AxHasher, RuntimeBackend, axhash, axhash_seeded, runtime_backend, runtime_has_aes};
+use axhash_core::hash::AxHasher;
+use axhash_core::hash::api::{axhash, axhash_seeded};
+use axhash_core::{RuntimeBackend, runtime_backend, runtime_has_aes};
 use pyo3::prelude::*;
 
 fn backend_name(backend: RuntimeBackend) -> &'static str {
