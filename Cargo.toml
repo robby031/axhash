@@ -16,13 +16,12 @@ axhash-core.workspace = true
 [workspace]
 members = [
     "crates/axhash-core",
-    "crates/axhash-ffi",
-    "crates/axhash-python"
+    "crates/axhash-ffi"
 ]
 resolver = "2"
 
 [workspace.package]
-version = "0.4.6"
+version = "0.4.7"
 authors = ["Bagus Dwi Harianto robbymangkualam2000@gmail.com"]
 edition = "2024"
 license = "MIT"
@@ -30,7 +29,7 @@ repository = "https://github.com/robby031/axhash"
 description = "High-performance AxHash engine for multiple environments"
 
 [workspace.dependencies]
-axhash-core = { path = "crates/axhash-core", version = "0.4.6" }
+axhash-core = { path = "crates/axhash-core", version = "0.4.7" }
 pyo3 = { version = "0.28.3", features = ["abi3-py39", "extension-module"] }
 
 [profile.release]

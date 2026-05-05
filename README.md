@@ -1,6 +1,6 @@
 # AxHash
 
-AxHash is a fast, deterministic hashing family for Rust, C/C++, Python, and WebAssembly.
+AxHash is a fast, deterministic hashing family for Rust, C/C++.
 
 If you only need AxHash in Rust, start with the `axhash` crate from this workspace. It is the simplest entrypoint and re-exports the core engine with a friendlier import path.
 
@@ -8,7 +8,6 @@ If you only need AxHash in Rust, start with the `axhash` crate from this workspa
 
 - Rust: `axhash`
 - C / C++ / Go / Zig / Swift / Kotlin Native: `axhash-ffi`
-- Python: `axhash-python`
 - Internal engine / `no_std`: `axhash-core`
 
 ## Rust Quick Start
@@ -111,7 +110,6 @@ fn main() {
 
 - [axhash-core](crates/axhash-core/README.md): low-level Rust core and `no_std` engine
 - [axhash-ffi](crates/axhash-ffi/README.md): stable C ABI
-- [axhash-python](crates/axhash-python/README.md): Python bindings
 
 ## Benchmarks
 

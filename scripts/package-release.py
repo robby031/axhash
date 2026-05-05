@@ -33,7 +33,6 @@ def get_resolved_version(package_name: str) -> str:
         print(f"Error resolving version for {package_name}: {e}", file=sys.stderr)
         sys.exit(1)
 
-
 def main() -> int:
     if len(sys.argv) != 4:
         print("usage: package-release.py <target> <profile> <out-dir>", file=sys.stderr)
@@ -51,12 +50,10 @@ def main() -> int:
                 shutil.rmtree(f)
     out_dir.mkdir(parents=True, exist_ok=True)
     
-    # --- PROSES NATIVE (FFI) ---
     lib_dir = root_dir / "target" / target / profile
     stage_dir = root_dir / "target" / "package" / target
     include_dir = root_dir / "crates" / "axhash-ffi" / "include"
-    
-    # Menggunakan resolver versi otomatis
+
     version = get_resolved_version("axhash-ffi")
     archive_base = f"axhash-ffi-{version}-{target}"
 
