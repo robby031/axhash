@@ -1,4 +1,5 @@
-use axhash_core::{AxHasher, axhash, axhash_of, axhash_of_seeded, axhash_seeded};
+use axhash_core::hash::AxHasher;
+use axhash_core::hash::api::{axhash, axhash_of, axhash_of_seeded, axhash_seeded};
 use core::hash::{Hash, Hasher};
 
 #[derive(Hash)]

@@ -24,7 +24,6 @@ foldhash = "0.2.0"
 rapidhash = "4.4.1"
 wyhash-final4 = "0.2.2"
 xxhash-rust = { version = "0.8.15", features = ["xxh3"] }
-criterion = "0.8.2"
 
 [[bench]]
 name = "head_to_head"
@@ -32,8 +31,4 @@ harness = false
 
 [[bench]]
 name = "stress_test"
-harness = false
-
-[[bench]]
-name = "my_criterion"
 harness = false

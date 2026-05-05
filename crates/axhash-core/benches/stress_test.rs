@@ -1,4 +1,5 @@
-use axhash_core::{AxBuildHasher, axhash_of_seeded, axhash_seeded};
+use axhash_core::hash::api::{axhash_of_seeded, axhash_seeded};
+use axhash_core::hash::build::AxBuildHasher;
 use core::hash::Hash;
 use std::collections::HashMap;
 use std::hint::black_box;

@@ -1,4 +1,4 @@
-use axhash_core::AxBuildHasher;
+use axhash_core::hash::build::AxBuildHasher;
 use std::collections::HashMap;
 
 fn main() {

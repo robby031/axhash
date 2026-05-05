@@ -1,12 +1,11 @@
 #![cfg_attr(not(any(feature = "std", test)), no_std)]
+pub mod hash;
 
 mod bytes;
 mod constants;
 mod hasher;
 mod math;
 mod memory;
-
-pub use hasher::{AxBuildHasher, AxHasher, axhash, axhash_of, axhash_of_seeded, axhash_seeded};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum RuntimeBackend {
@@ -33,7 +32,9 @@ pub fn runtime_has_aes() -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{AxHasher, RuntimeBackend, axhash, axhash_of, axhash_of_seeded, axhash_seeded};
+    use crate::RuntimeBackend;
+    use crate::hash::AxHasher;
+    use crate::hash::api::*;
     use core::hash::{Hash, Hasher};
 
     #[derive(Hash)]

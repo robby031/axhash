@@ -2,7 +2,7 @@
 use crate::constants::FINAL_MIX;
 use crate::constants::{SECRET, STRIPE_SECRET};
 use crate::math::{avalanche, folded_multiply};
-use crate::memory::{r_u32, r_u64};
+use crate::memory::r_u64;
 
 mod scalar;
 
@@ -24,23 +24,18 @@ pub(crate) enum Backend {
 
 #[inline(always)]
 pub(crate) unsafe fn hash_bytes_short(ptr: *const u8, len: usize, acc: u64) -> u64 {
-    let h = if len >= 8 {
-        let a = unsafe { r_u64(ptr) } ^ SECRET[1] ^ (len as u64);
-        let b = unsafe { r_u64(ptr.add(len - 8)) } ^ STRIPE_SECRET[1] ^ acc;
-        folded_multiply(a, b)
-    } else if len >= 4 {
-        let a = (unsafe { r_u32(ptr) } as u64) ^ SECRET[2] ^ (len as u64);
-        let b = (unsafe { r_u32(ptr.add(len - 4)) } as u64) ^ STRIPE_SECRET[2] ^ acc;
-        folded_multiply(a, b)
-    } else if len > 0 {
-        let a = unsafe { *ptr } as u64;
-        let b = unsafe { *ptr.add(len >> 1) } as u64;
-        let c = unsafe { *ptr.add(len - 1) } as u64;
-        let val = (a << 16) | (b << 8) | c;
-        folded_multiply(val ^ SECRET[0] ^ (len as u64), STRIPE_SECRET[3] ^ acc)
-    } else {
-        folded_multiply(acc ^ SECRET[0], STRIPE_SECRET[0])
-    };
+    debug_assert!(len <= 32);
+
+    let lo = unsafe { r_u64(ptr) };
+    let hi = unsafe { r_u64(ptr.add(len.wrapping_sub(8))) };
+
+    let mut a = lo ^ SECRET[1];
+    let mut b = hi ^ STRIPE_SECRET[1];
+
+    a ^= len as u64;
+    b ^= acc;
+
+    let h = folded_multiply(a, b);
     avalanche(h)
 }
 

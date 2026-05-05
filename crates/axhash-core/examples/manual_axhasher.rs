@@ -1,5 +1,5 @@
 //! Contoh penggunaan manual AxHasher untuk advanced user
-use axhash_core::AxHasher;
+use axhash_core::hash::AxHasher;
 use core::hash::Hasher;
 
 fn main() {
