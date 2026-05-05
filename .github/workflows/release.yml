@@ -50,6 +50,9 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
+      - name: Build axhash-ffi
+        run: cargo build --release --target ${{ matrix.target }} -p axhash-ffi
+
       - name: Package release archive
         run: |
           python scripts/package-release.py "${{ matrix.target }}" release "$PWD/dist"
