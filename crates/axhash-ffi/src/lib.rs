@@ -4,13 +4,11 @@ use axhash_core::{RuntimeBackend, runtime_backend, runtime_has_aes};
 use core::ffi::c_char;
 use core::hash::Hasher;
 use core::ptr::NonNull;
+
 extern crate alloc;
 use alloc::boxed::Box;
 
-#[repr(C)]
-pub struct AxHashState {
-    _private: [u8; 0],
-}
+pub enum AxHashState {}
 
 #[repr(C)]
 pub struct AxHashIovec {
@@ -30,22 +28,22 @@ const MAX_BATCH: usize = 1 << 16;
 
 #[inline(always)]
 fn as_state_ptr(hasher: AxHasher) -> *mut AxHashState {
-    Box::into_raw(Box::new(hasher)).cast::<AxHashState>()
+    Box::into_raw(Box::new(hasher)).cast()
 }
 
 #[inline(always)]
-unsafe fn state_mut<'a>(state: *mut AxHashState) -> Option<&'a mut AxHasher> {
-    NonNull::new(state.cast::<AxHasher>()).map(|p| unsafe { &mut *p.as_ptr() })
+unsafe fn state_mut(state: *mut AxHashState) -> Option<&'static mut AxHasher> {
+    NonNull::new(state.cast()).map(|p| unsafe { &mut *p.as_ptr() })
 }
 
 #[inline(always)]
-unsafe fn ffi_bytes_unchecked<'a>(bytes: *const u8, len: usize) -> &'a [u8] {
-    unsafe { core::slice::from_raw_parts(bytes, len) }
+unsafe fn slice_from_raw<'a>(ptr: *const u8, len: usize) -> &'a [u8] {
+    unsafe { core::slice::from_raw_parts(ptr, len) }
 }
 
 #[inline(always)]
 fn is_invalid_input(ptr: *const u8, len: usize) -> bool {
-    (len != 0) & ptr.is_null()
+    len != 0 && ptr.is_null()
 }
 
 #[inline(always)]
@@ -65,7 +63,7 @@ fn fail_u64() -> u64 {
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_ffi_version() -> *const c_char {
     static VERSION: &[u8] = concat!(env!("CARGO_PKG_VERSION"), "\0").as_bytes();
-    VERSION.as_ptr().cast::<c_char>()
+    VERSION.as_ptr().cast()
 }
 
 #[unsafe(no_mangle)]
@@ -78,7 +76,7 @@ pub extern "C" fn axhash_bytes(bytes: *const u8, len: usize) -> u64 {
         return axhash(&[]);
     }
 
-    unsafe { axhash(ffi_bytes_unchecked(bytes, len)) }
+    unsafe { axhash(slice_from_raw(bytes, len)) }
 }
 
 #[unsafe(no_mangle)]
@@ -91,7 +89,7 @@ pub extern "C" fn axhash_bytes_seeded(bytes: *const u8, len: usize, seed: u64) -
         return axhash_seeded(&[], seed);
     }
 
-    unsafe { axhash_seeded(ffi_bytes_unchecked(bytes, len), seed) }
+    unsafe { axhash_seeded(slice_from_raw(bytes, len), seed) }
 }
 
 #[unsafe(no_mangle)]
@@ -105,14 +103,13 @@ pub extern "C" fn axhash_batch_seeded(
         return;
     }
 
-    let count = core::cmp::min(count, MAX_BATCH);
+    let count = count.min(MAX_BATCH);
 
     unsafe {
         let jobs = core::slice::from_raw_parts(iovecs, count);
         let outs = core::slice::from_raw_parts_mut(out_hashes, count);
 
-        let mut i = 0;
-        while i < count {
+        for i in 0..count {
             let job = jobs.get_unchecked(i);
             let out = outs.get_unchecked_mut(i);
 
@@ -121,11 +118,8 @@ pub extern "C" fn axhash_batch_seeded(
             } else if job.len == 0 {
                 axhash_seeded(&[], seed)
             } else {
-                let slice = core::slice::from_raw_parts(job.ptr, job.len);
-                axhash_seeded(slice, seed)
+                axhash_seeded(slice_from_raw(job.ptr, job.len), seed)
             };
-
-            i += 1;
         }
     }
 }
@@ -142,14 +136,13 @@ pub extern "C" fn axhash_hasher_new_seeded(seed: u64) -> *mut AxHashState {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_hasher_reset(state: *mut AxHashState, seed: u64) -> bool {
-    unsafe {
-        let Some(hasher) = state_mut(state) else {
-            return false;
-        };
+    let hasher = unsafe { state_mut(state) };
+    let Some(hasher) = hasher else {
+        return false;
+    };
 
-        *hasher = AxHasher::new_with_seed(seed);
-        true
-    }
+    *hasher = AxHasher::new_with_seed(seed);
+    true
 }
 
 #[unsafe(no_mangle)]
@@ -162,34 +155,41 @@ pub extern "C" fn axhash_hasher_write(
         return false;
     }
 
-    unsafe {
-        let Some(hasher) = state_mut(state) else {
-            return false;
-        };
-
-        let slice = core::slice::from_raw_parts(bytes, len);
-        hasher.write(slice);
-        true
+    if len == 0 {
+        return true;
     }
+
+    let hasher = unsafe { state_mut(state) };
+
+    let Some(hasher) = hasher else {
+        return false;
+    };
+
+    unsafe {
+        hasher.write(slice_from_raw(bytes, len));
+    }
+
+    true
 }
 
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_hasher_finish(state: *mut AxHashState) -> u64 {
-    unsafe {
-        let Some(hasher) = state_mut(state) else {
-            return 0;
-        };
+    let hasher = unsafe { state_mut(state) };
+    let Some(hasher) = hasher else {
+        return 0;
+    };
 
-        hasher.finish()
-    }
+    hasher.finish()
 }
 
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_hasher_free(state: *mut AxHashState) {
-    if let Some(state) = NonNull::new(state.cast::<AxHasher>()) {
-        unsafe {
-            drop(Box::from_raw(state.as_ptr()));
-        }
+    if state.is_null() {
+        return;
+    }
+
+    unsafe {
+        drop(Box::from_raw(state.cast::<AxHasher>()));
     }
 }
 

@@ -16,14 +16,12 @@ typedef enum AxHashRuntimeBackend {
   AX_HASH_RUNTIME_BACKEND_X86_64AES_AVX2 = 2,
 } AxHashRuntimeBackend;
 
+typedef struct AxHashState AxHashState;
+
 typedef struct AxHashIovec {
   const uint8_t *ptr;
   size_t len;
 } AxHashIovec;
-
-typedef struct AxHashState {
-  uint8_t _private[0];
-} AxHashState;
 
 #ifdef __cplusplus
 extern "C" {
