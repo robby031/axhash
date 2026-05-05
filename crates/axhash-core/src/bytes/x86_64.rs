@@ -7,7 +7,7 @@ use core::arch::x86_64::*;
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "aes")]
 unsafe fn aes_round(state: __m128i, block: __m128i) -> __m128i {
-    unsafe { _mm_aesenc_si128(state, block) }
+    _mm_aesenc_si128(state, block)
 }
 
 #[cfg(target_arch = "x86_64")]
