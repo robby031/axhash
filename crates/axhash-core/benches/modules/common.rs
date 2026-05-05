@@ -202,19 +202,22 @@ pub fn build_variable_bytes_arena(
     min_len: usize,
     max_len: usize,
     seed: u64,
-    misalign: usize,
 ) -> Dataset {
     let mut rng = SplitMix64::new(seed);
-
     let span = max_len - min_len + 1;
 
     let mut lengths = Vec::with_capacity(count);
+    let mut pads = Vec::with_capacity(count);
     let mut total_bytes = 0usize;
 
     for _ in 0..count {
         let len = min_len + (rng.next_u64() as usize % span);
+        let pad = (rng.next_u64() as usize) & 7;
+
         lengths.push(len);
-        total_bytes += len + misalign;
+        pads.push(pad);
+
+        total_bytes += len + pad;
     }
 
     let mut data = vec![0u8; total_bytes];
@@ -222,13 +225,13 @@ pub fn build_variable_bytes_arena(
 
     let mut cursor = 0;
 
-    for len in lengths {
-        let start = cursor + misalign;
+    for (len, pad) in lengths.into_iter().zip(pads.into_iter()) {
+        let start = cursor + pad;
 
         rng.fill_bytes(&mut data[start..start + len]);
 
         offsets.push((start, len));
-        cursor += len + misalign;
+        cursor += len + pad;
     }
 
     Dataset {

@@ -10,7 +10,7 @@ use wyhash_final4::wyhash64::WyHash64;
 use xxhash_rust::xxh3::xxh3_64;
 
 pub fn bench() -> BenchGroup {
-    let dataset = build_variable_bytes_arena(1_500_000, 1, 32, 0x1001, 0);
+    let dataset = build_variable_bytes_arena(1_500_000, 1, 32, 0x1001);
     let order = shuffled_indices(dataset.offsets.len(), 0xdeadbeef);
     let ahash = AHashRandomState::with_seed(AXHASH_SEED as usize);
     let foldhash = FoldHashFixedState::with_seed(AXHASH_SEED);
