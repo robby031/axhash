@@ -19,7 +19,7 @@ jobs:
       - name: Validate no_std core
         run: cargo build -p axhash-core --no-default-features --quiet
 
-  native-and-wasm-build:
+  native-build:
     name: Build ${{ matrix.artifact_name }}
     strategy:
       fail-fast: false
@@ -60,9 +60,11 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
+      - name: Build axhash-ffi
+        run: cargo build --release --target ${{ matrix.target }} -p axhash-ffi
+
       - name: Package artifacts
-        run: |
-          python scripts/package-release.py "${{ matrix.target }}" release "$PWD/dist"
+        run: python scripts/package-release.py "${{ matrix.target }}" release "$PWD/dist"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

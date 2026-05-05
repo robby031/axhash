@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  release-native-and-wasm:
+  release-native-build:
     name: Release ${{ matrix.target }}
     strategy:
       fail-fast: false
