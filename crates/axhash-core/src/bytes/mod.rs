@@ -139,7 +139,7 @@ fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u64 {
 pub(crate) fn hash_bytes_core(bytes: &[u8], acc: u64) -> u64 {
     let len = bytes.len();
     unsafe {
-        if len <= 16 {
+        if len <= 32 {
             hash_bytes_short(bytes.as_ptr(), len, acc)
         } else {
             let rotated = acc.rotate_right(len as u32);

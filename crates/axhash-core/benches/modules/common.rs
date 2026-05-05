@@ -193,7 +193,7 @@ pub fn print_group(group: &BenchGroup) {
 }
 pub struct Dataset {
     pub data: Vec<u8>,
-    pub offsets: Vec<(usize, usize)>, // (start, len)
+    pub offsets: Vec<(usize, usize)>,
     pub total_bytes: u64,
 }
 
@@ -202,13 +202,12 @@ pub fn build_variable_bytes_arena(
     min_len: usize,
     max_len: usize,
     seed: u64,
-    misalign: usize, // 0 = aligned, >0 = offset shift
+    misalign: usize,
 ) -> Dataset {
     let mut rng = SplitMix64::new(seed);
 
     let span = max_len - min_len + 1;
 
-    // precompute lengths
     let mut lengths = Vec::with_capacity(count);
     let mut total_bytes = 0usize;
 
@@ -218,7 +217,6 @@ pub fn build_variable_bytes_arena(
         total_bytes += len + misalign;
     }
 
-    // single allocation (arena)
     let mut data = vec![0u8; total_bytes];
     let mut offsets = Vec::with_capacity(count);
 
