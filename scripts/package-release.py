@@ -51,48 +51,6 @@ def main() -> int:
                 shutil.rmtree(f)
     out_dir.mkdir(parents=True, exist_ok=True)
     
-    # --- PROSES WASM ---
-    if target == "wasm32-unknown-unknown":
-        wasm_pkg_dir = root_dir / "crates" / "axhash-wasm"
-        wasm_out_dir = root_dir / "target" / "wasm-package"
-        
-        print(f"--- Building WASM for {profile} profile ---")
-        
-        wasm_pack_cmd = [
-            "wasm-pack", "build", str(wasm_pkg_dir),
-            "--target", "bundler",
-            "--out-dir", str(wasm_out_dir),
-            "--release" if profile == "release" else "--dev"
-        ]
-        
-        try:
-            subprocess.run(wasm_pack_cmd, check=True)
-            source_json = wasm_pkg_dir / "package.json"
-            target_json = wasm_out_dir / "package.json"
-            if source_json.exists():
-                print(f"Syncing customized package.json to {target_json}")
-                shutil.copy2(source_json, target_json)
-
-            ignore_file = wasm_out_dir / ".gitignore"
-            if ignore_file.exists():
-                ignore_file.unlink()
-                print("Removed .gitignore from WASM output for NPM compatibility.")
-
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            print(f"Error during WASM build process: {e}", file=sys.stderr)
-            return 1
-
-        # Menggunakan resolver versi otomatis dari metadata workspace
-        version = get_resolved_version("axhash-rs-wasm")
-        archive_name = out_dir / f"axhash-wasm-{version}.tar.gz"
-
-        out_dir.mkdir(parents=True, exist_ok=True)
-        with tarfile.open(archive_name, "w:gz") as tf:
-            tf.add(wasm_out_dir, arcname=".")
-        
-        print(f"WASM package created at: {archive_name}")
-        return 0
-
     # --- PROSES NATIVE (FFI) ---
     lib_dir = root_dir / "target" / target / profile
     stage_dir = root_dir / "target" / "package" / target

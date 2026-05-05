@@ -17,8 +17,7 @@ axhash-core.workspace = true
 members = [
     "crates/axhash-core",
     "crates/axhash-ffi",
-    "crates/axhash-python",
-    "crates/axhash-wasm"
+    "crates/axhash-python"
 ]
 resolver = "2"
 
