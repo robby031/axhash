@@ -21,6 +21,5 @@ pub(crate) fn avalanche(mut x: u64) -> u64 {
     x ^= x >> 33;
     x = x.wrapping_mul(0xc4ceb9fe1a85ec53);
     x ^= x >> 33;
-
     x
 }

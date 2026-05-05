@@ -30,7 +30,8 @@ impl SplitMix64 {
     pub fn fill_bytes(&mut self, bytes: &mut [u8]) {
         let mut offset = 0;
         while offset + 8 <= bytes.len() {
-            bytes[offset..offset + 8].copy_from_slice(&self.next_u64().to_le_bytes());
+            let chunk = self.next_u64().to_le_bytes();
+            bytes[offset..offset + 8].copy_from_slice(&chunk);
             offset += 8;
         }
 
@@ -191,6 +192,7 @@ pub fn print_group(group: &BenchGroup) {
         }
     }
 }
+
 pub struct Dataset {
     pub data: Vec<u8>,
     pub offsets: Vec<(usize, usize)>,

@@ -1,7 +1,7 @@
 #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
 use crate::constants::FINAL_MIX;
 use crate::constants::{SECRET, STRIPE_SECRET};
-use crate::math::{avalanche, folded_multiply};
+use crate::math::folded_multiply;
 use crate::memory::r_u64;
 
 mod scalar;
@@ -35,8 +35,12 @@ pub(crate) unsafe fn hash_bytes_short(ptr: *const u8, len: usize, acc: u64) -> u
     a ^= len as u64;
     b ^= acc;
 
-    let h = folded_multiply(a, b);
-    avalanche(h)
+    let m1 = a.wrapping_mul(0x9E3779B185EBCA87);
+    let m2 = b.wrapping_mul(0xC2B2AE3D27D4EB4F);
+
+    let h = m1 ^ m2;
+
+    h ^ (h >> 32)
 }
 
 #[inline(always)]
@@ -134,24 +138,25 @@ fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u64 {
         }
     }
 }
-
 #[inline(always)]
 pub(crate) fn hash_bytes_core(bytes: &[u8], acc: u64) -> u64 {
     let len = bytes.len();
+
     unsafe {
-        if len <= 32 {
+        if len <= 16 {
             hash_bytes_short(bytes.as_ptr(), len, acc)
+        } else if len <= 32 {
+            let rotated = acc.rotate_right(len as u32);
+            hash_bytes_17_32(bytes.as_ptr(), len, rotated)
+        } else if len <= 64 {
+            let rotated = acc.rotate_right(len as u32);
+            hash_bytes_33_64(bytes.as_ptr(), len, rotated)
+        } else if len <= 128 {
+            let rotated = acc.rotate_right(len as u32);
+            hash_bytes_65_128(bytes.as_ptr(), len, rotated)
         } else {
             let rotated = acc.rotate_right(len as u32);
-            if len <= 32 {
-                hash_bytes_17_32(bytes.as_ptr(), len, rotated)
-            } else if len <= 64 {
-                hash_bytes_33_64(bytes.as_ptr(), len, rotated)
-            } else if len <= 128 {
-                hash_bytes_65_128(bytes.as_ptr(), len, rotated)
-            } else {
-                hash_bytes_long(bytes.as_ptr(), len, rotated)
-            }
+            hash_bytes_long(bytes.as_ptr(), len, rotated)
         }
     }
 }
