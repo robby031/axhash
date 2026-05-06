@@ -3,7 +3,6 @@ pub mod hash;
 
 mod bytes;
 mod constants;
-mod hasher;
 mod math;
 mod memory;
 

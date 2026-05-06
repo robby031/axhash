@@ -9,13 +9,10 @@ use core::hash::Hasher;
 impl Hasher for AxHasher {
     #[inline(always)]
     fn finish(&self) -> u64 {
-        if self.sponge_bits == 0 {
-            avalanche(self.acc)
-        } else {
-            let lo = self.sponge as u64;
-            let hi = (self.sponge >> 64) as u64;
-            avalanche(folded_multiply(lo ^ self.acc, hi ^ SECRET[1]))
-        }
+        // Always flush the sponge before finalizing
+        let mut hasher = self.clone();
+        hasher.flush_sponge();
+        avalanche(hasher.acc)
     }
 
     #[inline(always)]
