@@ -39,12 +39,16 @@ impl Hasher for AxHasher {
 
     #[inline(always)]
     fn write_u32(&mut self, i: u32) {
-        self.push_num(i, 32);
+        self.flush_sponge();
+
+        self.acc = folded_multiply(self.acc ^ i as u64, SECRET[1]);
     }
 
     #[inline(always)]
     fn write_u64(&mut self, i: u64) {
-        self.push_num(i, 64);
+        self.flush_sponge();
+
+        self.acc = folded_multiply(self.acc ^ i, SECRET[1]);
     }
 
     #[inline(always)]

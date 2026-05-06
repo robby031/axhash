@@ -170,21 +170,29 @@ fn bench_mutex_write_contention(c: &mut criterion::Criterion) {
             BenchmarkId::new("DefaultHasher", threads),
             &threads,
             |b, &t| {
+                let total = OPS_PER_THREAD * t;
+
                 b.iter(|| {
-                    let map: Arc<Mutex<HashMap<u64, u64>>> = Arc::new(Mutex::new(HashMap::new()));
+                    let map: Arc<Mutex<HashMap<u64, u64>>> =
+                        Arc::new(Mutex::new(HashMap::with_capacity(total)));
+
                     let handles: Vec<_> = (0..t)
                         .map(|tid| {
                             let map = Arc::clone(&map);
+
                             std::thread::spawn(move || {
                                 let mut rng = SplitMix64(SEED ^ tid as u64);
+
                                 for _ in 0..OPS_PER_THREAD {
                                     let k = rng.next();
                                     let v = rng.next();
+
                                     map.lock().unwrap().insert(k, v);
                                 }
                             })
                         })
                         .collect();
+
                     for h in handles {
                         h.join().unwrap();
                     }
