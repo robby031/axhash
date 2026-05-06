@@ -1,1 +1,0 @@
-{"group_id":"concurrent/mutex-write","function_id":"AxBuildHasher","value_str":"8","throughput":{"Elements":80000},"full_id":"concurrent/mutex-write/AxBuildHasher/8","directory_name":"concurrent_mutex-write/AxBuildHasher/8","title":"concurrent/mutex-write/AxBuildHasher/8"}

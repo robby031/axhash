@@ -1,1 +1,0 @@
-{"group_id":"streaming/chunk-size","function_id":"write","value_str":"1B-chunks","throughput":{"Bytes":4096},"full_id":"streaming/chunk-size/write/1B-chunks","directory_name":"streaming_chunk-size/write/1B-chunks","title":"streaming/chunk-size/write/1B-chunks"}

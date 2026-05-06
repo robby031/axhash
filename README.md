@@ -42,8 +42,6 @@ Benchmarked with Criterion.rs on Apple Silicon (release mode).
 
 See full Criterion benchmark reports for detailed graphs and methodology.
 
-[![Benchmark](https://img.shields.io/badge/benchmark-criterion-blue)](assets/criterion/report/index.html)
-
 ## Pick The Right Package
 
 - Rust: `axhash`
