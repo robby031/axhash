@@ -5,14 +5,12 @@ use crate::constants::{SECRET, STRIPE_SECRET};
 use core::arch::x86_64::*;
 
 #[cfg(target_arch = "x86_64")]
-#[inline(always)]
 #[target_feature(enable = "aes")]
 unsafe fn aes_round(state: __m128i, block: __m128i) -> __m128i {
     _mm_aesenc_si128(state, block)
 }
 
 #[cfg(target_arch = "x86_64")]
-#[inline(always)]
 #[target_feature(enable = "avx2")]
 unsafe fn load_pair(ptr: *const u8) -> (__m128i, __m128i) {
     let pair = unsafe { _mm256_loadu_si256(ptr.cast::<__m256i>()) };
