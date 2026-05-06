@@ -8,7 +8,7 @@ Most Rust users should prefer the top-level `axhash` crate because it provides a
 
 ```toml
 [dependencies]
-axhash-core = "0.4.3"
+axhash-core = "0.8"
 ```
 
 ## Features

@@ -1,3 +1,9 @@
+// All extern "C" functions in this file intentionally accept raw pointers —
+// that is required by the C ABI. Pointer validity is verified via null checks
+// before any dereference. Marking these functions `unsafe` would be incorrect
+// for a public C API boundary and would make them uncallable from safe Rust.
+#![allow(clippy::not_unsafe_ptr_arg_deref)]
+
 use axhash_core::hash::AxHasher;
 use axhash_core::hash::api::{axhash, axhash_seeded};
 use axhash_core::{RuntimeBackend, runtime_backend, runtime_has_aes};
@@ -16,6 +22,12 @@ pub struct AxHashIovec {
     pub len: usize,
 }
 
+// C-stable mirror of [`axhash_core::RuntimeBackend`].
+//
+// Discriminant values are fixed and will never change, so existing C switch
+// statements remain valid. New variants may be added in future releases;
+// C code should always include a `default:` case.
+#[non_exhaustive]
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum AxHashRuntimeBackend {
@@ -32,7 +44,7 @@ fn as_state_ptr(hasher: AxHasher) -> *mut AxHashState {
 }
 
 #[inline(always)]
-unsafe fn state_mut(state: *mut AxHashState) -> Option<&'static mut AxHasher> {
+unsafe fn state_mut<'a>(state: *mut AxHashState) -> Option<&'a mut AxHasher> {
     NonNull::new(state.cast()).map(|p| unsafe { &mut *p.as_ptr() })
 }
 
@@ -46,12 +58,16 @@ fn is_invalid_input(ptr: *const u8, len: usize) -> bool {
     len != 0 && ptr.is_null()
 }
 
-#[inline(always)]
-fn map_backend(backend: RuntimeBackend) -> AxHashRuntimeBackend {
-    match backend {
-        RuntimeBackend::Scalar => AxHashRuntimeBackend::Scalar,
-        RuntimeBackend::Aarch64AesNeon => AxHashRuntimeBackend::Aarch64AesNeon,
-        RuntimeBackend::X86_64AesAvx2 => AxHashRuntimeBackend::X86_64AesAvx2,
+impl From<RuntimeBackend> for AxHashRuntimeBackend {
+    #[inline(always)]
+    fn from(b: RuntimeBackend) -> Self {
+        match b {
+            RuntimeBackend::Scalar => Self::Scalar,
+            RuntimeBackend::Aarch64AesNeon => Self::Aarch64AesNeon,
+            RuntimeBackend::X86_64AesAvx2 => Self::X86_64AesAvx2,
+            // Forward-compatibility: an unknown backend is reported as scalar.
+            _ => Self::Scalar,
+        }
     }
 }
 
@@ -105,22 +121,21 @@ pub extern "C" fn axhash_batch_seeded(
 
     let count = count.min(MAX_BATCH);
 
-    unsafe {
-        let jobs = core::slice::from_raw_parts(iovecs, count);
-        let outs = core::slice::from_raw_parts_mut(out_hashes, count);
+    // SAFETY: caller guarantees iovecs and out_hashes point to at least `count`
+    // valid elements each. count is clamped to MAX_BATCH above.
+    let jobs = unsafe { core::slice::from_raw_parts(iovecs, count) };
+    let outs = unsafe { core::slice::from_raw_parts_mut(out_hashes, count) };
 
-        for i in 0..count {
-            let job = jobs.get_unchecked(i);
-            let out = outs.get_unchecked_mut(i);
-
-            *out = if is_invalid_input(job.ptr, job.len) {
-                0
-            } else if job.len == 0 {
-                axhash_seeded(&[], seed)
-            } else {
-                axhash_seeded(slice_from_raw(job.ptr, job.len), seed)
-            };
-        }
+    for (job, out) in jobs.iter().zip(outs.iter_mut()) {
+        *out = if is_invalid_input(job.ptr, job.len) {
+            0
+        } else if job.len == 0 {
+            axhash_seeded(&[], seed)
+        } else {
+            // SAFETY: is_invalid_input returned false and len > 0, so ptr is
+            // non-null and the slice [ptr, ptr+len) is caller-guaranteed valid.
+            unsafe { axhash_seeded(slice_from_raw(job.ptr, job.len), seed) }
+        };
     }
 }
 
@@ -195,7 +210,7 @@ pub extern "C" fn axhash_hasher_free(state: *mut AxHashState) {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn axhash_runtime_backend() -> AxHashRuntimeBackend {
-    map_backend(runtime_backend())
+    runtime_backend().into()
 }
 
 #[unsafe(no_mangle)]

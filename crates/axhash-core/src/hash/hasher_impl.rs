@@ -9,10 +9,16 @@ use core::hash::Hasher;
 impl Hasher for AxHasher {
     #[inline(always)]
     fn finish(&self) -> u64 {
-        // Always flush the sponge before finalizing
-        let mut hasher = self.clone();
-        hasher.flush_sponge();
-        avalanche(hasher.acc)
+        // Compute the post-flush accumulator without mutating self.
+        // Avoids a 24-byte clone on every HashMap lookup/insert.
+        let final_acc = if self.sponge_bits == 0 {
+            self.acc
+        } else {
+            let lo = self.sponge as u64;
+            let hi = (self.sponge >> 64) as u64;
+            folded_multiply(lo ^ self.acc, hi ^ SECRET[1])
+        };
+        avalanche(final_acc)
     }
 
     #[inline(always)]

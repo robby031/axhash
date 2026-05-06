@@ -10,18 +10,26 @@ usize_is_size_t = true
 parse_deps = false
 
 [export]
+# Complete list of every symbol exported in axhash.h. Keep this in sync with
+# the public #[no_mangle] items in src/lib.rs so the intent is always clear.
 include = [
+  # types
   "AxHashState",
+  "AxHashIovec",
   "AxHashRuntimeBackend",
+  # one-shot functions
   "axhash_ffi_version",
   "axhash_bytes",
   "axhash_bytes_seeded",
+  "axhash_batch_seeded",
+  # stateful hasher API
   "axhash_hasher_new",
   "axhash_hasher_new_seeded",
   "axhash_hasher_reset",
   "axhash_hasher_write",
   "axhash_hasher_finish",
   "axhash_hasher_free",
+  # runtime detection
   "axhash_runtime_backend",
   "axhash_runtime_has_aes",
 ]

@@ -15,7 +15,7 @@ pub(crate) const fn seed_lane(seed: u64, lane: usize) -> u64 {
 }
 
 #[inline(always)]
-pub(crate) fn avalanche(mut x: u64) -> u64 {
+pub(crate) const fn avalanche(mut x: u64) -> u64 {
     x ^= x >> 33;
     x = x.wrapping_mul(0xff51afd7ed558ccd);
     x ^= x >> 33;

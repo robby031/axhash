@@ -1,4 +1,7 @@
 fn main() {
+    println!("cargo:rerun-if-changed=src/lib.rs");
+    println!("cargo:rerun-if-changed=cbindgen.toml");
+
     let crate_dir = std::env::var("CARGO_MANIFEST_DIR").expect("missing manifest dir");
     let out_file = std::path::Path::new(&crate_dir).join("include").join("axhash.h");
 

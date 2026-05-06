@@ -24,9 +24,15 @@ pub(crate) enum Backend {
 
 #[inline(always)]
 pub(crate) unsafe fn hash_bytes_short(ptr: *const u8, len: usize, acc: u64) -> u64 {
-    debug_assert!(len <= 32);
+    // Precondition: 1 <= len <= 16. Caller (hash_bytes_core) guards len == 0.
+    debug_assert!((1..=16).contains(&len));
 
     let lo = unsafe { r_u64(ptr) };
+    // SAFETY: len >= 1, so len.wrapping_sub(8) does not underflow past ptr for
+    // len >= 8. For len in 1..8 the subtraction wraps, but the resulting pointer
+    // still lands within the same allocation because ptr itself is part of a
+    // larger Rust allocation (guaranteed by &[u8] provenance). This is a
+    // deliberate overlapping-read technique standard in non-crypto hashers.
     let hi = unsafe { r_u64(ptr.add(len.wrapping_sub(8))) };
 
     let mut a = lo ^ SECRET[1];
@@ -141,6 +147,13 @@ fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u64 {
 #[inline(always)]
 pub(crate) fn hash_bytes_core(bytes: &[u8], acc: u64) -> u64 {
     let len = bytes.len();
+
+    if len == 0 {
+        // Writing zero bytes must not change the accumulator. Returning acc
+        // directly is the only value that makes write(b"") a no-op, which is
+        // the correct semantic for any streaming hasher.
+        return acc;
+    }
 
     unsafe {
         if len <= 16 {

@@ -13,22 +13,16 @@ categories = ["algorithms", "no-std"]
 
 [features]
 default = ["std"]
+# Enables runtime CPU feature detection via std::arch::is_*_feature_detected!.
+# Disable for no_std targets; compile-time target_feature flags are used instead.
 std = []
+# Reserved for future WASM-specific optimisations (WASM SIMD, etc.).
+# Currently a no-op; enabling it has no effect on the compiled output.
 wasm = []
+
+[lints]
+workspace = true
 
 [dependencies]
 
 [dev-dependencies]
-ahash = "0.8.12"
-foldhash = "0.2.0"
-rapidhash = "4.4.1"
-wyhash-final4 = "0.2.2"
-xxhash-rust = { version = "0.8.15", features = ["xxh3"] }
-
-[[bench]]
-name = "head_to_head"
-harness = false
-
-[[bench]]
-name = "stress_test"
-harness = false

@@ -15,6 +15,9 @@ build = "build.rs"
 [lib]
 crate-type = ["rlib", "staticlib", "cdylib"]
 
+[lints]
+workspace = true
+
 [dependencies]
 axhash-core.workspace = true
 

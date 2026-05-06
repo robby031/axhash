@@ -16,7 +16,7 @@ Add the simplest Rust package:
 
 ```toml
 [dependencies]
-axhash = "0.4.3"
+axhash = "0.8"
 ```
 
 Hash raw bytes:
@@ -68,11 +68,11 @@ fn main() {
 Use the streaming hasher:
 
 ```rust
-use axhash::Hasher;
+use axhash::AxHasher;
 use std::hash::Hasher as _;
 
 fn main() {
-    let mut hasher = Hasher::new_with_seed(0x4444);
+    let mut hasher = AxHasher::new_with_seed(0x4444);
     hasher.write(b"hello ");
     hasher.write(b"world");
 
@@ -83,11 +83,11 @@ fn main() {
 Use AxHash with `HashMap`:
 
 ```rust
-use axhash::BuildHasher;
+use axhash::AxBuildHasher;
 use std::collections::HashMap;
 
 fn main() {
-    let mut map = HashMap::with_hasher(BuildHasher::with_seed(0xfeed_beef));
+    let mut map = HashMap::with_hasher(AxBuildHasher::with_seed(0xfeed_beef));
     map.insert("status", "ok");
     map.insert("runtime", "fast");
 
