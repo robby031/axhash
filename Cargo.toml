@@ -44,7 +44,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.8.0"
+version = "0.8.1"
 authors = ["Bagus Dwi Harianto robbymangkualam2000@gmail.com"]
 edition = "2024"
 license = "MIT"
@@ -52,7 +52,7 @@ repository = "https://github.com/robby031/axhash"
 description = "High-performance AxHash engine for multiple environments"
 
 [workspace.dependencies]
-axhash-core = { path = "crates/axhash-core", version = "0.8.0" }
+axhash-core = { path = "crates/axhash-core", version = "0.8.1" }
 criterion = { version = "0.8.2", features = ["html_reports"] }
 
 [workspace.lints.rust]
