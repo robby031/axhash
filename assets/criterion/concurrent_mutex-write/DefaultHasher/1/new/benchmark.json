@@ -1,0 +1,1 @@
+{"group_id":"concurrent/mutex-write","function_id":"DefaultHasher","value_str":"1","throughput":{"Elements":10000},"full_id":"concurrent/mutex-write/DefaultHasher/1","directory_name":"concurrent_mutex-write/DefaultHasher/1","title":"concurrent/mutex-write/DefaultHasher/1"}

@@ -4,6 +4,46 @@ AxHash is a fast, deterministic hashing family for Rust, C/C++.
 
 If you only need AxHash in Rust, start with the `axhash` crate from this workspace. It is the simplest entrypoint and re-exports the core engine with a friendlier import path.
 
+## Performance Highlights
+
+Benchmarked with Criterion.rs on Apple Silicon (release mode).
+
+| Benchmark                                   |       AxHash Performance |
+| ------------------------------------------- | -----------------------: |
+| HashMap `get-hit` (100k keys)               | ~494 million lookups/sec |
+| HashMap `get-miss` (10k keys)               | ~785 million lookups/sec |
+| HashMap `insert-u64` (100k keys)            |  ~90 million inserts/sec |
+| `u64` hashing throughput                    |  ~2.0 billion hashes/sec |
+| Thread-local concurrent hashing (8 threads) |     ~750 million ops/sec |
+| Large-buffer throughput (64K)               |                ~94 GiB/s |
+| Large-buffer throughput (4K)                |               ~100 GiB/s |
+| `write_u64` latency                         |                    ~3 ns |
+| `write_u128` latency                        |                 ~1.48 ns |
+| Mixed struct hashing                        |     ~290 million ops/sec |
+| `HashMap` builder creation                  |                  ~1.3 ns |
+
+### Real-world HashMap Comparison
+
+| Workload            |        AxHash | DefaultHasher |
+| ------------------- | ------------: | ------------: |
+| `insert-u64` (100k) |   ~90 Melem/s |   ~44 Melem/s |
+| `get-hit` (100k)    |  ~494 Melem/s |  ~183 Melem/s |
+| `get-miss` (10k)    |  ~785 Melem/s |  ~280 Melem/s |
+| mixed workload      | ~11.9 Melem/s |  ~6.1 Melem/s |
+
+### Concurrency Scaling
+
+| Threads |   Throughput |
+| ------- | -----------: |
+| 1       | ~230 Melem/s |
+| 2       | ~420 Melem/s |
+| 4       | ~691 Melem/s |
+| 8       | ~752 Melem/s |
+
+See full Criterion benchmark reports for detailed graphs and methodology.
+
+[![Benchmark](https://img.shields.io/badge/benchmark-criterion-blue)](assets/criterion/report/index.html)
+
 ## Pick The Right Package
 
 - Rust: `axhash`
@@ -110,14 +150,6 @@ fn main() {
 
 - [axhash-core](crates/axhash-core/README.md): low-level Rust core and `no_std` engine
 - [axhash-ffi](crates/axhash-ffi/README.md): stable C ABI
-
-## Benchmarks
-
-Internal Criterion screenshots:
-
-![Hotloop](assets/screenshot_hotloop.png)
-![One-shot](assets/screenshot_oneshoot.png)
-![Streaming](assets/screenshot_streaming.png)
 
 ## License
 

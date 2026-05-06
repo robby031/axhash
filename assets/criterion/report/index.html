@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Index - Criterion.rs</title>
+    <style type="text/css">
+        body {
+            font: 14px Helvetica Neue;
+            text-rendering: optimizelegibility;
+        }
+
+        .body {
+            width: 960px;
+            margin: auto;
+        }
+
+        a:link {
+            color: #1F78B4;
+            text-decoration: none;
+        }
+
+        h2 {
+            font-size: 36px;
+            font-weight: 300;
+        }
+
+        h3 {
+            font-size: 24px;
+            font-weight: 300;
+        }
+
+        #footer {
+            height: 40px;
+            background: #888;
+            color: white;
+            font-size: larger;
+            font-weight: 300;
+        }
+
+        #footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        #footer p {
+            text-align: center
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="body">
+        <h2>Criterion.rs Benchmark Index</h2>
+        See individual benchmark pages below for more details.
+        <ul>
+            <li><a href="../axhash_hash-trait/report/index.html">axhash/hash-trait</a></li>
+            
+            <ul>
+                <li><a href="../axhash_hash-trait/axhash_of_string/report/index.html">axhash_of/string</a></li>
+                <li><a href="../axhash_hash-trait/axhash_of_struct/report/index.html">axhash_of/struct</a></li>
+                <li><a href="../axhash_hash-trait/axhash_of_u64/report/index.html">axhash_of/u64</a></li>
+                <li><a href="../axhash_hash-trait/axhash_of_seeded_struct/report/index.html">axhash_of_seeded/struct</a></li>
+            </ul>
+            <li><a href="../axhash_one-shot/report/index.html">axhash/one-shot</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../axhash_one-shot/axhash/report/index.html">axhash</a></th>
+                        </tr>
+                        <tr>
+                            <th>16B</th>
+                            <td><a href="../axhash_one-shot/axhash/16B/report/index.html">axhash/one-shot/axhash/16B</a></td>
+                        </tr>
+                        <tr>
+                            <th>256B</th>
+                            <td><a href="../axhash_one-shot/axhash/256B/report/index.html">axhash/one-shot/axhash/256B</a></td>
+                        </tr>
+                        <tr>
+                            <th>4B</th>
+                            <td><a href="../axhash_one-shot/axhash/4B/report/index.html">axhash/one-shot/axhash/4B</a></td>
+                        </tr>
+                        <tr>
+                            <th>4K</th>
+                            <td><a href="../axhash_one-shot/axhash/4K/report/index.html">axhash/one-shot/axhash/4K</a></td>
+                        </tr>
+                        <tr>
+                            <th>64B</th>
+                            <td><a href="../axhash_one-shot/axhash/64B/report/index.html">axhash/one-shot/axhash/64B</a></td>
+                        </tr>
+                        <tr>
+                            <th>64K</th>
+                            <td><a href="../axhash_one-shot/axhash/64K/report/index.html">axhash/one-shot/axhash/64K</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../axhash_seeded/report/index.html">axhash/seeded</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../axhash_seeded/axhash_seeded/report/index.html">axhash_seeded</a></th>
+                        </tr>
+                        <tr>
+                            <th>16B</th>
+                            <td><a href="../axhash_seeded/axhash_seeded/16B/report/index.html">axhash/seeded/axhash_seeded/16B</a></td>
+                        </tr>
+                        <tr>
+                            <th>256B</th>
+                            <td><a href="../axhash_seeded/axhash_seeded/256B/report/index.html">axhash/seeded/axhash_seeded/256B</a></td>
+                        </tr>
+                        <tr>
+                            <th>4B</th>
+                            <td><a href="../axhash_seeded/axhash_seeded/4B/report/index.html">axhash/seeded/axhash_seeded/4B</a></td>
+                        </tr>
+                        <tr>
+                            <th>4K</th>
+                            <td><a href="../axhash_seeded/axhash_seeded/4K/report/index.html">axhash/seeded/axhash_seeded/4K</a></td>
+                        </tr>
+                        <tr>
+                            <th>64B</th>
+                            <td><a href="../axhash_seeded/axhash_seeded/64B/report/index.html">axhash/seeded/axhash_seeded/64B</a></td>
+                        </tr>
+                        <tr>
+                            <th>64K</th>
+                            <td><a href="../axhash_seeded/axhash_seeded/64K/report/index.html">axhash/seeded/axhash_seeded/64K</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../axhash_wrapper-api/report/index.html">axhash/wrapper-api</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../axhash_wrapper-api/hash/report/index.html">hash</a></th>
+                            <th><a href="../axhash_wrapper-api/hash_with_seed/report/index.html">hash_with_seed</a></th>
+                        </tr>
+                        <tr>
+                            <th><a href="../axhash_wrapper-api/16B/report/index.html">16B</a></th>
+                            <td><a href="../axhash_wrapper-api/hash/16B/report/index.html">axhash/wrapper-api/hash/16B</a></td>
+                            <td><a href="../axhash_wrapper-api/hash_with_seed/16B/report/index.html">axhash/wrapper-api/hash_with_seed/16B</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../axhash_wrapper-api/256B/report/index.html">256B</a></th>
+                            <td><a href="../axhash_wrapper-api/hash/256B/report/index.html">axhash/wrapper-api/hash/256B</a></td>
+                            <td><a href="../axhash_wrapper-api/hash_with_seed/256B/report/index.html">axhash/wrapper-api/hash_with_seed/256B</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../axhash_wrapper-api/4B/report/index.html">4B</a></th>
+                            <td><a href="../axhash_wrapper-api/hash/4B/report/index.html">axhash/wrapper-api/hash/4B</a></td>
+                            <td><a href="../axhash_wrapper-api/hash_with_seed/4B/report/index.html">axhash/wrapper-api/hash_with_seed/4B</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../axhash_wrapper-api/4K/report/index.html">4K</a></th>
+                            <td><a href="../axhash_wrapper-api/hash/4K/report/index.html">axhash/wrapper-api/hash/4K</a></td>
+                            <td><a href="../axhash_wrapper-api/hash_with_seed/4K/report/index.html">axhash/wrapper-api/hash_with_seed/4K</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../axhash_wrapper-api/64B/report/index.html">64B</a></th>
+                            <td><a href="../axhash_wrapper-api/hash/64B/report/index.html">axhash/wrapper-api/hash/64B</a></td>
+                            <td><a href="../axhash_wrapper-api/hash_with_seed/64B/report/index.html">axhash/wrapper-api/hash_with_seed/64B</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../axhash_wrapper-api/64K/report/index.html">64K</a></th>
+                            <td><a href="../axhash_wrapper-api/hash/64K/report/index.html">axhash/wrapper-api/hash/64K</a></td>
+                            <td><a href="../axhash_wrapper-api/hash_with_seed/64K/report/index.html">axhash/wrapper-api/hash_with_seed/64K</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../concurrent_mutex-write/report/index.html">concurrent/mutex-write</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../concurrent_mutex-write/AxBuildHasher/report/index.html">AxBuildHasher</a></th>
+                            <th><a href="../concurrent_mutex-write/DefaultHasher/report/index.html">DefaultHasher</a></th>
+                        </tr>
+                        <tr>
+                            <th><a href="../concurrent_mutex-write/1/report/index.html">1</a></th>
+                            <td><a href="../concurrent_mutex-write/AxBuildHasher/1/report/index.html">concurrent/mutex-write/AxBuildHasher/1</a></td>
+                            <td><a href="../concurrent_mutex-write/DefaultHasher/1/report/index.html">concurrent/mutex-write/DefaultHasher/1</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../concurrent_mutex-write/2/report/index.html">2</a></th>
+                            <td><a href="../concurrent_mutex-write/AxBuildHasher/2/report/index.html">concurrent/mutex-write/AxBuildHasher/2</a></td>
+                            <td><a href="../concurrent_mutex-write/DefaultHasher/2/report/index.html">concurrent/mutex-write/DefaultHasher/2</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../concurrent_mutex-write/4/report/index.html">4</a></th>
+                            <td><a href="../concurrent_mutex-write/AxBuildHasher/4/report/index.html">concurrent/mutex-write/AxBuildHasher/4</a></td>
+                            <td><a href="../concurrent_mutex-write/DefaultHasher/4/report/index.html">concurrent/mutex-write/DefaultHasher/4</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../concurrent_mutex-write/8/report/index.html">8</a></th>
+                            <td><a href="../concurrent_mutex-write/AxBuildHasher/8/report/index.html">concurrent/mutex-write/AxBuildHasher/8</a></td>
+                            <td><a href="../concurrent_mutex-write/DefaultHasher/8/report/index.html">concurrent/mutex-write/DefaultHasher/8</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../concurrent_parallel-independent/report/index.html">concurrent/parallel-independent</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../concurrent_parallel-independent/axhash/report/index.html">axhash</a></th>
+                        </tr>
+                        <tr>
+                            <th>1</th>
+                            <td><a href="../concurrent_parallel-independent/axhash/1/report/index.html">concurrent/parallel-independent/axhash/1</a></td>
+                        </tr>
+                        <tr>
+                            <th>2</th>
+                            <td><a href="../concurrent_parallel-independent/axhash/2/report/index.html">concurrent/parallel-independent/axhash/2</a></td>
+                        </tr>
+                        <tr>
+                            <th>4</th>
+                            <td><a href="../concurrent_parallel-independent/axhash/4/report/index.html">concurrent/parallel-independent/axhash/4</a></td>
+                        </tr>
+                        <tr>
+                            <th>8</th>
+                            <td><a href="../concurrent_parallel-independent/axhash/8/report/index.html">concurrent/parallel-independent/axhash/8</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../concurrent_shared-read-only/report/index.html">concurrent/shared-read-only</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../concurrent_shared-read-only/get-hit/report/index.html">get-hit</a></th>
+                        </tr>
+                        <tr>
+                            <th>1</th>
+                            <td><a href="../concurrent_shared-read-only/get-hit/1/report/index.html">concurrent/shared-read-only/get-hit/1</a></td>
+                        </tr>
+                        <tr>
+                            <th>2</th>
+                            <td><a href="../concurrent_shared-read-only/get-hit/2/report/index.html">concurrent/shared-read-only/get-hit/2</a></td>
+                        </tr>
+                        <tr>
+                            <th>4</th>
+                            <td><a href="../concurrent_shared-read-only/get-hit/4/report/index.html">concurrent/shared-read-only/get-hit/4</a></td>
+                        </tr>
+                        <tr>
+                            <th>8</th>
+                            <td><a href="../concurrent_shared-read-only/get-hit/8/report/index.html">concurrent/shared-read-only/get-hit/8</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../concurrent_thread-local-hasher/report/index.html">concurrent/thread-local-hasher</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../concurrent_thread-local-hasher/AxHasher-per-thread/report/index.html">AxHasher-per-thread</a></th>
+                        </tr>
+                        <tr>
+                            <th>1</th>
+                            <td><a href="../concurrent_thread-local-hasher/AxHasher-per-thread/1/report/index.html">concurrent/thread-local-hasher/AxHasher-per-thread/1</a></td>
+                        </tr>
+                        <tr>
+                            <th>2</th>
+                            <td><a href="../concurrent_thread-local-hasher/AxHasher-per-thread/2/report/index.html">concurrent/thread-local-hasher/AxHasher-per-thread/2</a></td>
+                        </tr>
+                        <tr>
+                            <th>4</th>
+                            <td><a href="../concurrent_thread-local-hasher/AxHasher-per-thread/4/report/index.html">concurrent/thread-local-hasher/AxHasher-per-thread/4</a></td>
+                        </tr>
+                        <tr>
+                            <th>8</th>
+                            <td><a href="../concurrent_thread-local-hasher/AxHasher-per-thread/8/report/index.html">concurrent/thread-local-hasher/AxHasher-per-thread/8</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li>hashmap/build-hasher</li>
+            
+            <ul>
+                <li><a href="../hashmap_build-hasher/build_hasher/report/index.html">build_hasher</a></li>
+            </ul>
+            <li><a href="../hashmap_get-hit/report/index.html">hashmap/get-hit</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../hashmap_get-hit/AxBuildHasher/report/index.html">AxBuildHasher</a></th>
+                            <th><a href="../hashmap_get-hit/DefaultHasher/report/index.html">DefaultHasher</a></th>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_get-hit/100/report/index.html">100</a></th>
+                            <td><a href="../hashmap_get-hit/AxBuildHasher/100/report/index.html">hashmap/get-hit/AxBuildHasher/100</a></td>
+                            <td><a href="../hashmap_get-hit/DefaultHasher/100/report/index.html">hashmap/get-hit/DefaultHasher/100</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_get-hit/1000/report/index.html">1000</a></th>
+                            <td><a href="../hashmap_get-hit/AxBuildHasher/1000/report/index.html">hashmap/get-hit/AxBuildHasher/1000</a></td>
+                            <td><a href="../hashmap_get-hit/DefaultHasher/1000/report/index.html">hashmap/get-hit/DefaultHasher/1000</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_get-hit/10000/report/index.html">10000</a></th>
+                            <td><a href="../hashmap_get-hit/AxBuildHasher/10000/report/index.html">hashmap/get-hit/AxBuildHasher/10000</a></td>
+                            <td><a href="../hashmap_get-hit/DefaultHasher/10000/report/index.html">hashmap/get-hit/DefaultHasher/10000</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_get-hit/100000/report/index.html">100000</a></th>
+                            <td><a href="../hashmap_get-hit/AxBuildHasher/100000/report/index.html">hashmap/get-hit/AxBuildHasher/100000</a></td>
+                            <td><a href="../hashmap_get-hit/DefaultHasher/100000/report/index.html">hashmap/get-hit/DefaultHasher/100000</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../hashmap_get-miss/report/index.html">hashmap/get-miss</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th>AxBuildHasher</th>
+                            <th>DefaultHasher</th>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_get-miss/10000/report/index.html">10000</a></th>
+                            <td><a href="../hashmap_get-miss/AxBuildHasher/10000/report/index.html">hashmap/get-miss/AxBuildHasher/10000</a></td>
+                            <td><a href="../hashmap_get-miss/DefaultHasher/10000/report/index.html">hashmap/get-miss/DefaultHasher/10000</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../hashmap_insert-string/report/index.html">hashmap/insert-string</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../hashmap_insert-string/AxBuildHasher/report/index.html">AxBuildHasher</a></th>
+                            <th><a href="../hashmap_insert-string/DefaultHasher/report/index.html">DefaultHasher</a></th>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_insert-string/100/report/index.html">100</a></th>
+                            <td><a href="../hashmap_insert-string/AxBuildHasher/100/report/index.html">hashmap/insert-string/AxBuildHasher/100</a></td>
+                            <td><a href="../hashmap_insert-string/DefaultHasher/100/report/index.html">hashmap/insert-string/DefaultHasher/100</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_insert-string/1000/report/index.html">1000</a></th>
+                            <td><a href="../hashmap_insert-string/AxBuildHasher/1000/report/index.html">hashmap/insert-string/AxBuildHasher/1000</a></td>
+                            <td><a href="../hashmap_insert-string/DefaultHasher/1000/report/index.html">hashmap/insert-string/DefaultHasher/1000</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_insert-string/10000/report/index.html">10000</a></th>
+                            <td><a href="../hashmap_insert-string/AxBuildHasher/10000/report/index.html">hashmap/insert-string/AxBuildHasher/10000</a></td>
+                            <td><a href="../hashmap_insert-string/DefaultHasher/10000/report/index.html">hashmap/insert-string/DefaultHasher/10000</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_insert-string/100000/report/index.html">100000</a></th>
+                            <td><a href="../hashmap_insert-string/AxBuildHasher/100000/report/index.html">hashmap/insert-string/AxBuildHasher/100000</a></td>
+                            <td><a href="../hashmap_insert-string/DefaultHasher/100000/report/index.html">hashmap/insert-string/DefaultHasher/100000</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../hashmap_insert-u64/report/index.html">hashmap/insert-u64</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../hashmap_insert-u64/AxBuildHasher/report/index.html">AxBuildHasher</a></th>
+                            <th><a href="../hashmap_insert-u64/DefaultHasher/report/index.html">DefaultHasher</a></th>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_insert-u64/100/report/index.html">100</a></th>
+                            <td><a href="../hashmap_insert-u64/AxBuildHasher/100/report/index.html">hashmap/insert-u64/AxBuildHasher/100</a></td>
+                            <td><a href="../hashmap_insert-u64/DefaultHasher/100/report/index.html">hashmap/insert-u64/DefaultHasher/100</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_insert-u64/1000/report/index.html">1000</a></th>
+                            <td><a href="../hashmap_insert-u64/AxBuildHasher/1000/report/index.html">hashmap/insert-u64/AxBuildHasher/1000</a></td>
+                            <td><a href="../hashmap_insert-u64/DefaultHasher/1000/report/index.html">hashmap/insert-u64/DefaultHasher/1000</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_insert-u64/10000/report/index.html">10000</a></th>
+                            <td><a href="../hashmap_insert-u64/AxBuildHasher/10000/report/index.html">hashmap/insert-u64/AxBuildHasher/10000</a></td>
+                            <td><a href="../hashmap_insert-u64/DefaultHasher/10000/report/index.html">hashmap/insert-u64/DefaultHasher/10000</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../hashmap_insert-u64/100000/report/index.html">100000</a></th>
+                            <td><a href="../hashmap_insert-u64/AxBuildHasher/100000/report/index.html">hashmap/insert-u64/AxBuildHasher/100000</a></td>
+                            <td><a href="../hashmap_insert-u64/DefaultHasher/100000/report/index.html">hashmap/insert-u64/DefaultHasher/100000</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../hashmap_mixed/report/index.html">hashmap/mixed</a></li>
+            
+            <ul>
+                <li><a href="../hashmap_mixed/AxBuildHasher/report/index.html">AxBuildHasher</a></li>
+                <li><a href="../hashmap_mixed/DefaultHasher/report/index.html">DefaultHasher</a></li>
+            </ul>
+            <li><a href="../hashmap_str-keys/report/index.html">hashmap/str-keys</a></li>
+            
+            <ul>
+                <li><a href="../hashmap_str-keys/insert-1000-AxBuildHasher/report/index.html">insert-1000-AxBuildHasher</a></li>
+                <li><a href="../hashmap_str-keys/insert-1000-DefaultHasher/report/index.html">insert-1000-DefaultHasher</a></li>
+            </ul>
+            <li><a href="../latency_finish-idempotent/report/index.html">latency/finish-idempotent</a></li>
+            
+            <ul>
+                <li><a href="../latency_finish-idempotent/finish-once/report/index.html">finish-once</a></li>
+                <li><a href="../latency_finish-idempotent/finish-twice/report/index.html">finish-twice</a></li>
+            </ul>
+            <li><a href="../latency_hasher-finish/report/index.html">latency/hasher-finish</a></li>
+            
+            <ul>
+                <li><a href="../latency_hasher-finish/str-key-16/report/index.html">str-key-16</a></li>
+                <li><a href="../latency_hasher-finish/str-key-8/report/index.html">str-key-8</a></li>
+                <li><a href="../latency_hasher-finish/u32-key/report/index.html">u32-key</a></li>
+                <li><a href="../latency_hasher-finish/u64-key/report/index.html">u64-key</a></li>
+            </ul>
+            <li><a href="../latency_small-key/report/index.html">latency/small-key</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../latency_small-key/axhash/report/index.html">axhash</a></th>
+                            <th><a href="../latency_small-key/axhash_seeded/report/index.html">axhash_seeded</a></th>
+                        </tr>
+                        <tr>
+                            <th><a href="../latency_small-key/16B/report/index.html">16B</a></th>
+                            <td><a href="../latency_small-key/axhash/16B/report/index.html">latency/small-key/axhash/16B</a></td>
+                            <td><a href="../latency_small-key/axhash_seeded/16B/report/index.html">latency/small-key/axhash_seeded/16B</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../latency_small-key/256B/report/index.html">256B</a></th>
+                            <td><a href="../latency_small-key/axhash/256B/report/index.html">latency/small-key/axhash/256B</a></td>
+                            <td><a href="../latency_small-key/axhash_seeded/256B/report/index.html">latency/small-key/axhash_seeded/256B</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../latency_small-key/4B/report/index.html">4B</a></th>
+                            <td><a href="../latency_small-key/axhash/4B/report/index.html">latency/small-key/axhash/4B</a></td>
+                            <td><a href="../latency_small-key/axhash_seeded/4B/report/index.html">latency/small-key/axhash_seeded/4B</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../latency_small-key/64B/report/index.html">64B</a></th>
+                            <td><a href="../latency_small-key/axhash/64B/report/index.html">latency/small-key/axhash/64B</a></td>
+                            <td><a href="../latency_small-key/axhash_seeded/64B/report/index.html">latency/small-key/axhash_seeded/64B</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../streaming_chunk-size/report/index.html">streaming/chunk-size</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../streaming_chunk-size/write/report/index.html">write</a></th>
+                        </tr>
+                        <tr>
+                            <th>1024B-chunks</th>
+                            <td><a href="../streaming_chunk-size/write/1024B-chunks/report/index.html">streaming/chunk-size/write/1024B-chunks</a></td>
+                        </tr>
+                        <tr>
+                            <th>128B-chunks</th>
+                            <td><a href="../streaming_chunk-size/write/128B-chunks/report/index.html">streaming/chunk-size/write/128B-chunks</a></td>
+                        </tr>
+                        <tr>
+                            <th>16B-chunks</th>
+                            <td><a href="../streaming_chunk-size/write/16B-chunks/report/index.html">streaming/chunk-size/write/16B-chunks</a></td>
+                        </tr>
+                        <tr>
+                            <th>1B-chunks</th>
+                            <td><a href="../streaming_chunk-size/write/1B-chunks/report/index.html">streaming/chunk-size/write/1B-chunks</a></td>
+                        </tr>
+                        <tr>
+                            <th>256B-chunks</th>
+                            <td><a href="../streaming_chunk-size/write/256B-chunks/report/index.html">streaming/chunk-size/write/256B-chunks</a></td>
+                        </tr>
+                        <tr>
+                            <th>32B-chunks</th>
+                            <td><a href="../streaming_chunk-size/write/32B-chunks/report/index.html">streaming/chunk-size/write/32B-chunks</a></td>
+                        </tr>
+                        <tr>
+                            <th>4B-chunks</th>
+                            <td><a href="../streaming_chunk-size/write/4B-chunks/report/index.html">streaming/chunk-size/write/4B-chunks</a></td>
+                        </tr>
+                        <tr>
+                            <th>64B-chunks</th>
+                            <td><a href="../streaming_chunk-size/write/64B-chunks/report/index.html">streaming/chunk-size/write/64B-chunks</a></td>
+                        </tr>
+                        <tr>
+                            <th>8B-chunks</th>
+                            <td><a href="../streaming_chunk-size/write/8B-chunks/report/index.html">streaming/chunk-size/write/8B-chunks</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../streaming_large/report/index.html">streaming/large</a></li>
+            
+            <ul>
+                <li>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th><a href="../streaming_large/64B-chunks/report/index.html">64B-chunks</a></th>
+                            <th><a href="../streaming_large/axhash-one-shot/report/index.html">axhash-one-shot</a></th>
+                            <th><a href="../streaming_large/single-write/report/index.html">single-write</a></th>
+                        </tr>
+                        <tr>
+                            <th><a href="../streaming_large/4096B/report/index.html">4096B</a></th>
+                            <td><a href="../streaming_large/64B-chunks/4096B/report/index.html">streaming/large/64B-chunks/4096B</a></td>
+                            <td><a href="../streaming_large/axhash-one-shot/4096B/report/index.html">streaming/large/axhash-one-shot/4096B</a></td>
+                            <td><a href="../streaming_large/single-write/4096B/report/index.html">streaming/large/single-write/4096B</a></td>
+                        </tr>
+                        <tr>
+                            <th><a href="../streaming_large/65536B/report/index.html">65536B</a></th>
+                            <td><a href="../streaming_large/64B-chunks/65536B/report/index.html">streaming/large/64B-chunks/65536B</a></td>
+                            <td><a href="../streaming_large/axhash-one-shot/65536B/report/index.html">streaming/large/axhash-one-shot/65536B</a></td>
+                            <td><a href="../streaming_large/single-write/65536B/report/index.html">streaming/large/single-write/65536B</a></td>
+                        </tr>
+                    </table>
+                </li>
+            </ul>
+            <li><a href="../streaming_mixed-struct/report/index.html">streaming/mixed-struct</a></li>
+            
+            <ul>
+                <li><a href="../streaming_mixed-struct/axhash_of/report/index.html">axhash_of</a></li>
+                <li><a href="../streaming_mixed-struct/axhash_of_seeded/report/index.html">axhash_of_seeded</a></li>
+                <li><a href="../streaming_mixed-struct/derive-Hash-via-hasher/report/index.html">derive-Hash-via-hasher</a></li>
+            </ul>
+            <li><a href="../streaming_primitives/report/index.html">streaming/primitives</a></li>
+            
+            <ul>
+                <li><a href="../streaming_primitives/write_u128-x4/report/index.html">write_u128-x4</a></li>
+                <li><a href="../streaming_primitives/write_u16-x32/report/index.html">write_u16-x32</a></li>
+                <li><a href="../streaming_primitives/write_u32-x16/report/index.html">write_u32-x16</a></li>
+                <li><a href="../streaming_primitives/write_u64-x8/report/index.html">write_u64-x8</a></li>
+                <li><a href="../streaming_primitives/write_u8-x64/report/index.html">write_u8-x64</a></li>
+            </ul>
+        </ul>
+    </div>
+    <div id="footer">
+        <p>This report was generated by
+            <a href="https://github.com/criterion-rs/criterion.rs">Criterion.rs</a>, a statistics-driven benchmarking
+            library in Rust.</p>
+    </div>
+</body>
+</html>

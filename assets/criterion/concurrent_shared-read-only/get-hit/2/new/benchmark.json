@@ -1,0 +1,1 @@
+{"group_id":"concurrent/shared-read-only","function_id":"get-hit","value_str":"2","throughput":{"Elements":20000},"full_id":"concurrent/shared-read-only/get-hit/2","directory_name":"concurrent_shared-read-only/get-hit/2","title":"concurrent/shared-read-only/get-hit/2"}
