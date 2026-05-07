@@ -22,18 +22,49 @@ pub(crate) enum Backend {
     X86_64AesAvx2,
 }
 
+/// Read exactly `len` bytes (1 ≤ len ≤ 7) from `ptr` into a `u64`, zero-padding
+/// the high bits.  Uses only valid offsets inside the slice — no out-of-bounds reads.
+///
+/// For len ∈ [4, 7] an overlapping pair of 4-byte reads is used (same technique
+/// as `hash_bytes_short` for the ≥ 8 case).  For len ∈ [1, 3] individual byte
+/// reads are combined.
+#[inline(always)]
+unsafe fn read_partial_u64(ptr: *const u8, len: usize) -> u64 {
+    debug_assert!((1..=7).contains(&len));
+    if len >= 4 {
+        // First 4 bytes | last 4 bytes (may overlap when len < 8).
+        let a = u32::from_le(unsafe { core::ptr::read_unaligned(ptr.cast::<u32>()) });
+        let b = u32::from_le(unsafe { core::ptr::read_unaligned(ptr.add(len - 4).cast::<u32>()) });
+        (a as u64) | ((b as u64) << 32)
+    } else {
+        // len ∈ [1, 3]: byte-by-byte, no tricks needed.
+        let b0 = unsafe { *ptr } as u64;
+        let b1 = if len > 1 { (unsafe { *ptr.add(1) }) as u64 } else { 0 };
+        let b2 = if len > 2 { (unsafe { *ptr.add(2) }) as u64 } else { 0 };
+        b0 | (b1 << 8) | (b2 << 16)
+    }
+}
+
 #[inline(always)]
 pub(crate) unsafe fn hash_bytes_short(ptr: *const u8, len: usize, acc: u64) -> u64 {
     // Precondition: 1 <= len <= 16. Caller (hash_bytes_core) guards len == 0.
     debug_assert!((1..=16).contains(&len));
 
-    let lo = unsafe { r_u64(ptr) };
-    // SAFETY: len >= 1, so len.wrapping_sub(8) does not underflow past ptr for
-    // len >= 8. For len in 1..8 the subtraction wraps, but the resulting pointer
-    // still lands within the same allocation because ptr itself is part of a
-    // larger Rust allocation (guaranteed by &[u8] provenance). This is a
-    // deliberate overlapping-read technique standard in non-crypto hashers.
-    let hi = unsafe { r_u64(ptr.add(len.wrapping_sub(8))) };
+    // For len >= 8: use the standard overlapping-read technique — both reads are
+    // fully within the slice.  For len in 1..7: must NOT call r_u64 because it
+    // reads 8 bytes regardless, reaching memory outside the slice.  Static string
+    // slices (&'static str) and heap-allocated strings have different content in
+    // those extra bytes, which would produce divergent hashes for the same data.
+    let (lo, hi) = if len >= 8 {
+        let lo = unsafe { r_u64(ptr) };
+        // ptr.add(len - 8): last 8 bytes (overlaps with lo when len == 8).
+        let hi = unsafe { r_u64(ptr.add(len - 8)) };
+        (lo, hi)
+    } else {
+        // read_partial_u64 reads only the len valid bytes.
+        let lo = unsafe { read_partial_u64(ptr, len) };
+        (lo, lo) // `hi = lo` because all payload bits are already in lo
+    };
 
     let mut a = lo ^ SECRET[1];
     let mut b = hi ^ STRIPE_SECRET[1];
