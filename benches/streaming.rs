@@ -1,12 +1,3 @@
-//! Streaming hasher benchmarks — chunk size impact and write-type mixing.
-//!
-//! Covers the `AxHasher` sponge accumulator path that is exercised whenever
-//! callers use `write()` / `write_u64()` / etc. directly rather than the
-//! one-shot API.
-//!
-//! Run:
-//!   cargo bench --bench streaming
-
 mod util;
 
 use criterion::{BenchmarkId, Throughput, criterion_group, criterion_main};
@@ -15,13 +6,8 @@ use util::{configure_criterion, make_data};
 
 const SEED: u64 = 0xfeed_beef_cafe_dead;
 
-// Chunk sizes tested in the "fixed total, varying chunk" suite.
 const CHUNK_SIZES: &[usize] = &[1, 4, 8, 16, 32, 64, 128, 256, 1024];
 const TOTAL_BYTES: usize = 4096;
-
-// ---------------------------------------------------------------------------
-// Chunk-size impact: hash TOTAL_BYTES split into chunks of CHUNK_SIZE
-// ---------------------------------------------------------------------------
 
 fn bench_chunk_size_impact(c: &mut criterion::Criterion) {
     let data = make_data(TOTAL_BYTES, SEED);
@@ -47,10 +33,6 @@ fn bench_chunk_size_impact(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// write_u* primitive series — sequential writes of typed scalars
-// ---------------------------------------------------------------------------
 
 fn bench_write_primitives(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("streaming/primitives");
@@ -108,10 +90,6 @@ fn bench_write_primitives(c: &mut criterion::Criterion) {
     group.finish();
 }
 
-// ---------------------------------------------------------------------------
-// Mixed type sequence — realistic struct hashing via derive(Hash)
-// ---------------------------------------------------------------------------
-
 #[derive(Hash)]
 struct MixedRecord {
     id: u64,
@@ -152,10 +130,6 @@ fn bench_mixed_struct(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// Large streaming input — single write vs. split writes
-// ---------------------------------------------------------------------------
 
 fn bench_large_streaming(c: &mut criterion::Criterion) {
     let sizes = [4096usize, 65536];
@@ -203,10 +177,6 @@ fn bench_large_streaming(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// Criterion entry points
-// ---------------------------------------------------------------------------
 
 criterion_group! {
     name = streaming_benches;

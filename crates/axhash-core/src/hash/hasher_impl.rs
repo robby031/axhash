@@ -9,8 +9,6 @@ use core::hash::Hasher;
 impl Hasher for AxHasher {
     #[inline(always)]
     fn finish(&self) -> u64 {
-        // Compute the post-flush accumulator without mutating self.
-        // Avoids a 24-byte clone on every HashMap lookup/insert.
         let final_acc = if self.sponge_bits == 0 {
             self.acc
         } else {

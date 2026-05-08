@@ -1,13 +1,3 @@
-//! HashMap workload benchmarks — insert, get-hit, get-miss, mixed, and
-//! comparison against `DefaultHasher`.
-//!
-//! These benchmarks model the real-world overhead that `AxBuildHasher` adds
-//! compared to the stdlib default, and verify that the `AxBuildHasher`
-//! integration is zero-overhead relative to calling `axhash` directly.
-//!
-//! Run:
-//!   cargo bench --bench hashmap
-
 mod util;
 
 use axhash::AxBuildHasher;
@@ -17,16 +7,7 @@ use std::hash::BuildHasher;
 use util::{SplitMix64, configure_criterion};
 
 const SEED: u64 = 0xabcd_ef01_2345_6789;
-
-// ---------------------------------------------------------------------------
-// Map sizes under test
-// ---------------------------------------------------------------------------
-
 const MAP_SIZES: &[usize] = &[100, 1_000, 10_000, 100_000];
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 fn build_u64_map<S: BuildHasher + Default>(n: usize) -> HashMap<u64, u64, S> {
     let mut rng = SplitMix64(SEED ^ 0xFFFF);
@@ -36,10 +17,6 @@ fn build_u64_map<S: BuildHasher + Default>(n: usize) -> HashMap<u64, u64, S> {
     }
     map
 }
-
-// ---------------------------------------------------------------------------
-// Insert: string keys
-// ---------------------------------------------------------------------------
 
 fn bench_insert_string(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("hashmap/insert-string");
@@ -76,10 +53,6 @@ fn bench_insert_string(c: &mut criterion::Criterion) {
     group.finish();
 }
 
-// ---------------------------------------------------------------------------
-// Insert: u64 keys (most cache-friendly scenario)
-// ---------------------------------------------------------------------------
-
 fn bench_insert_u64(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("hashmap/insert-u64");
 
@@ -104,10 +77,6 @@ fn bench_insert_u64(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// Get hit: all lookups present in the map
-// ---------------------------------------------------------------------------
 
 fn bench_get_hit(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("hashmap/get-hit");
@@ -150,10 +119,6 @@ fn bench_get_hit(c: &mut criterion::Criterion) {
     group.finish();
 }
 
-// ---------------------------------------------------------------------------
-// Get miss: keys not in the map
-// ---------------------------------------------------------------------------
-
 fn bench_get_miss(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("hashmap/get-miss");
 
@@ -170,7 +135,6 @@ fn bench_get_miss(c: &mut criterion::Criterion) {
         m
     };
 
-    // Keys guaranteed not present: offset by a constant
     let mut rng = SplitMix64(SEED ^ 0xFFFF);
     let miss_keys: Vec<u64> = (0..n).map(|_| rng.next() ^ 0x0101_0101_0101_0101).collect();
 
@@ -197,10 +161,6 @@ fn bench_get_miss(c: &mut criterion::Criterion) {
     group.finish();
 }
 
-// ---------------------------------------------------------------------------
-// Mixed workload: 70% get-hit, 20% get-miss, 10% insert
-// ---------------------------------------------------------------------------
-
 fn bench_mixed_workload(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("hashmap/mixed");
 
@@ -213,28 +173,23 @@ fn bench_mixed_workload(c: &mut criterion::Criterion) {
                 HashMap::with_hasher(AxBuildHasher::with_seed(SEED));
             let mut rng = SplitMix64(SEED);
 
-            // pre-populate
             for _ in 0..n {
                 map.insert(rng.next(), rng.next());
             }
             let keys: Vec<u64> = map.keys().cloned().collect();
 
-            // mixed ops
             let mut result = 0u64;
             let mut rng2 = SplitMix64(SEED ^ 0xAA);
             for _ in 0..(n * 10) {
                 let op = rng2.next() % 10;
                 if op < 7 {
-                    // get-hit
                     let k = keys[rng2.next() as usize % keys.len()];
                     result = result.wrapping_add(*map.get(std::hint::black_box(&k)).unwrap_or(&0));
                 } else if op < 9 {
-                    // get-miss
                     let k = rng2.next() | 0x8000_0000_0000_0000;
                     result =
                         result.wrapping_add(map.get(std::hint::black_box(&k)).is_some() as u64);
                 } else {
-                    // insert
                     map.insert(rng2.next() & 0x7FFF_FFFF_FFFF_FFFF, rng2.next());
                 }
             }
@@ -274,10 +229,6 @@ fn bench_mixed_workload(c: &mut criterion::Criterion) {
     group.finish();
 }
 
-// ---------------------------------------------------------------------------
-// AxBuildHasher::build_hasher overhead
-// ---------------------------------------------------------------------------
-
 fn bench_build_hasher(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("hashmap/build-hasher");
 
@@ -289,10 +240,6 @@ fn bench_build_hasher(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// Realistic key: short borrowed &str slices
-// ---------------------------------------------------------------------------
 
 fn bench_str_key_map(c: &mut criterion::Criterion) {
     let keys: Vec<String> = (0..1000).map(|i| format!("session-key-{i:06}")).collect();
@@ -324,10 +271,6 @@ fn bench_str_key_map(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// Criterion entry points
-// ---------------------------------------------------------------------------
 
 criterion_group! {
     name = hashmap_benches;

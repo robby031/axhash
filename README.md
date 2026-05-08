@@ -21,12 +21,12 @@ AxHash is optimized for real-world `HashMap` workloads, concurrent systems, cach
 
 ## Ecosystem
 
-| Crate | Description |
-|---|---|
-| `axhash` | High-performance hashing engine |
-| `axhash-map` | Fast HashMap/HashSet powered by `hashbrown` |
-| `axhash-indexmap` | Ordered maps with AxHash |
-| `axhash-dashmap` | Concurrent DashMap powered by AxHash |
+| Crate             | Description                                 |
+| ----------------- | ------------------------------------------- |
+| `axhash`          | High-performance hashing engine             |
+| `axhash-map`      | Fast HashMap/HashSet powered by `hashbrown` |
+| `axhash-indexmap` | Ordered maps with AxHash                    |
+| `axhash-dashmap`  | Concurrent DashMap powered by AxHash        |
 
 ## Features
 

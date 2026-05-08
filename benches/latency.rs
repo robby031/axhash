@@ -1,11 +1,3 @@
-//! Latency benchmarks — ns/op for the hot HashMap-key scenario.
-//!
-//! These benchmarks measure the overhead of hashing short keys (4–64 bytes)
-//! because that is the dominant cost in HashMap insert/lookup workloads.
-//!
-//! Run:
-//!   cargo bench --bench latency
-
 mod util;
 
 use criterion::{criterion_group, criterion_main};
@@ -13,13 +5,8 @@ use util::{SMALL_SIZES, bench_id, configure_criterion, make_data};
 
 const SEED: u64 = 0x1234_5678_9abc_def0;
 
-// ---------------------------------------------------------------------------
-// Per-call overhead for small inputs
-// ---------------------------------------------------------------------------
-
 fn bench_small_key_latency(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("latency/small-key");
-    // ns/op matters more than GB/s here — no Throughput annotation
 
     for &size in SMALL_SIZES {
         let data = make_data(size, SEED ^ size as u64);
@@ -34,16 +21,11 @@ fn bench_small_key_latency(c: &mut criterion::Criterion) {
     group.finish();
 }
 
-// ---------------------------------------------------------------------------
-// AxHasher::finish() overhead (HashMap path)
-// ---------------------------------------------------------------------------
-
 fn bench_hasher_finish(c: &mut criterion::Criterion) {
     use std::hash::Hasher as _;
 
     let mut group = c.benchmark_group("latency/hasher-finish");
 
-    // Simulate the exact HashMap lookup hot path: new_with_seed → write → finish
     group.bench_function("u64-key", |b| {
         b.iter(|| {
             let mut h = axhash::AxHasher::new_with_seed(SEED);
@@ -81,10 +63,6 @@ fn bench_hasher_finish(c: &mut criterion::Criterion) {
     group.finish();
 }
 
-// ---------------------------------------------------------------------------
-// finish() idempotency cost (calling finish twice must be the same cost)
-// ---------------------------------------------------------------------------
-
 fn bench_finish_idempotent(c: &mut criterion::Criterion) {
     use std::hash::Hasher as _;
 
@@ -108,10 +86,6 @@ fn bench_finish_idempotent(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// Criterion entry points
-// ---------------------------------------------------------------------------
 
 criterion_group! {
     name = latency_benches;

@@ -29,13 +29,11 @@ impl SplitMix64 {
     }
 }
 
-// Produces a deterministic byte buffer of `len` bytes seeded with `seed`.
 pub fn make_data(len: usize, seed: u64) -> Vec<u8> {
     let mut rng = SplitMix64(seed);
     (0..len).map(|_| rng.next_byte()).collect()
 }
 
-// Pre-allocate a flat arena then return non-overlapping slices of `chunk_len`.
 pub fn make_arena(count: usize, chunk_len: usize, seed: u64) -> Vec<u8> {
     make_data(count * chunk_len, seed)
 }
@@ -48,7 +46,6 @@ pub fn configure_criterion() -> Criterion {
         .with_plots()
 }
 
-// Returns a label like "4B", "16B", "64B", "4096B".
 pub fn size_label(n: usize) -> String {
     if n >= 1024 {
         format!("{}K", n / 1024)

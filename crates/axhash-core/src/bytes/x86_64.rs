@@ -22,9 +22,6 @@ unsafe fn load_pair(ptr: *const u8) -> (__m128i, __m128i) {
 
 #[inline(always)]
 unsafe fn lanes(vec: __m128i) -> [u64; 2] {
-    // SAFETY: __m128i is a 128-bit integer vector; [u64; 2] is also 128 bits
-    // with identical alignment. Both representations have no padding and the
-    // bit pattern is valid for any value, making this transmute well-defined.
     unsafe { core::mem::transmute(vec) }
 }
 

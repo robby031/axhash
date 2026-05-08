@@ -1,24 +1,9 @@
-//! Throughput benchmarks — GB/s for the one-shot and seeded APIs across all
-//! canonical input sizes.
-//!
-//! Run:
-//!   cargo bench --bench throughput
-//!
-//! Compare baselines:
-//!   cargo bench --bench throughput -- --save-baseline before
-//!   # make changes
-//!   cargo bench --bench throughput -- --baseline before
-
 mod util;
 
 use criterion::{criterion_group, criterion_main};
 use util::{ALL_SIZES, bench_id, configure_criterion, make_data, throughput};
 
 const SEED: u64 = 0xdead_cafe_1234_5678;
-
-// ---------------------------------------------------------------------------
-// axhash (default seed)
-// ---------------------------------------------------------------------------
 
 fn bench_axhash(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("axhash/one-shot");
@@ -34,10 +19,6 @@ fn bench_axhash(c: &mut criterion::Criterion) {
     group.finish();
 }
 
-// ---------------------------------------------------------------------------
-// axhash_seeded
-// ---------------------------------------------------------------------------
-
 fn bench_axhash_seeded(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("axhash/seeded");
 
@@ -51,10 +32,6 @@ fn bench_axhash_seeded(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// axhash_of (hashing a struct via the Hash trait)
-// ---------------------------------------------------------------------------
 
 #[derive(Hash)]
 struct Record {
@@ -93,10 +70,6 @@ fn bench_axhash_of(c: &mut criterion::Criterion) {
     group.finish();
 }
 
-// ---------------------------------------------------------------------------
-// hash / hash_with_seed wrappers (root crate convenience API)
-// ---------------------------------------------------------------------------
-
 fn bench_wrapper_api(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("axhash/wrapper-api");
 
@@ -113,10 +86,6 @@ fn bench_wrapper_api(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// Criterion entry points
-// ---------------------------------------------------------------------------
 
 criterion_group! {
     name = throughput_benches;

@@ -1,7 +1,3 @@
-// All extern "C" functions in this file intentionally accept raw pointers —
-// that is required by the C ABI. Pointer validity is verified via null checks
-// before any dereference. Marking these functions `unsafe` would be incorrect
-// for a public C API boundary and would make them uncallable from safe Rust.
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 
 use axhash_core::hash::AxHasher;
@@ -22,11 +18,6 @@ pub struct AxHashIovec {
     pub len: usize,
 }
 
-// C-stable mirror of [`axhash_core::RuntimeBackend`].
-//
-// Discriminant values are fixed and will never change, so existing C switch
-// statements remain valid. New variants may be added in future releases;
-// C code should always include a `default:` case.
 #[non_exhaustive]
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -65,7 +56,6 @@ impl From<RuntimeBackend> for AxHashRuntimeBackend {
             RuntimeBackend::Scalar => Self::Scalar,
             RuntimeBackend::Aarch64AesNeon => Self::Aarch64AesNeon,
             RuntimeBackend::X86_64AesAvx2 => Self::X86_64AesAvx2,
-            // Forward-compatibility: an unknown backend is reported as scalar.
             _ => Self::Scalar,
         }
     }
@@ -121,8 +111,6 @@ pub extern "C" fn axhash_batch_seeded(
 
     let count = count.min(MAX_BATCH);
 
-    // SAFETY: caller guarantees iovecs and out_hashes point to at least `count`
-    // valid elements each. count is clamped to MAX_BATCH above.
     let jobs = unsafe { core::slice::from_raw_parts(iovecs, count) };
     let outs = unsafe { core::slice::from_raw_parts_mut(out_hashes, count) };
 
@@ -132,8 +120,6 @@ pub extern "C" fn axhash_batch_seeded(
         } else if job.len == 0 {
             axhash_seeded(&[], seed)
         } else {
-            // SAFETY: is_invalid_input returned false and len > 0, so ptr is
-            // non-null and the slice [ptr, ptr+len) is caller-guaranteed valid.
             unsafe { axhash_seeded(slice_from_raw(job.ptr, job.len), seed) }
         };
     }

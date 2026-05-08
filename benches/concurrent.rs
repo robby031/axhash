@@ -1,12 +1,3 @@
-//! Concurrency benchmarks — parallel independent hashing, shared read-only
-//! Arc<HashMap>, and Mutex-guarded write contention.
-//!
-//! These benchmarks require `std` and spawn real OS threads.  They are
-//! deliberately excluded from the `no_std` feature gate.
-//!
-//! Run:
-//!   cargo bench --bench concurrent
-
 mod util;
 
 use axhash::AxBuildHasher;
@@ -17,16 +8,7 @@ use util::{SplitMix64, configure_criterion, make_data};
 
 const SEED: u64 = 0xc0de_cafe_babe_f00d;
 const OPS_PER_THREAD: usize = 10_000;
-
-// ---------------------------------------------------------------------------
-// Thread counts under test
-// ---------------------------------------------------------------------------
-
 const THREAD_COUNTS: &[usize] = &[1, 2, 4, 8];
-
-// ---------------------------------------------------------------------------
-// Parallel independent hashing (embarrassingly parallel — no sharing)
-// ---------------------------------------------------------------------------
 
 fn bench_parallel_independent(c: &mut criterion::Criterion) {
     let data = Arc::new(make_data(256, SEED));
@@ -66,10 +48,6 @@ fn bench_parallel_independent(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// Shared read-only Arc<HashMap> — parallel reads with no lock contention
-// ---------------------------------------------------------------------------
 
 fn build_shared_map(n: usize) -> Arc<HashMap<u64, u64, AxBuildHasher>> {
     let mut rng = SplitMix64(SEED);
@@ -126,10 +104,6 @@ fn bench_shared_readonly_map(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// Mutex-guarded HashMap — write contention
-// ---------------------------------------------------------------------------
 
 fn bench_mutex_write_contention(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("concurrent/mutex-write");
@@ -204,10 +178,6 @@ fn bench_mutex_write_contention(c: &mut criterion::Criterion) {
     group.finish();
 }
 
-// ---------------------------------------------------------------------------
-// Thread-local hasher — verifying per-thread state is independent
-// ---------------------------------------------------------------------------
-
 fn bench_thread_local_hasher(c: &mut criterion::Criterion) {
     let data = Arc::new(make_data(64, SEED));
     let mut group = c.benchmark_group("concurrent/thread-local-hasher");
@@ -247,10 +217,6 @@ fn bench_thread_local_hasher(c: &mut criterion::Criterion) {
 
     group.finish();
 }
-
-// ---------------------------------------------------------------------------
-// Criterion entry points
-// ---------------------------------------------------------------------------
 
 criterion_group! {
     name = concurrent_benches;

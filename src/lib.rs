@@ -5,17 +5,9 @@ pub use axhash_core::hash::api::{axhash, axhash_of, axhash_of_seeded, axhash_see
 pub use axhash_core::hash::build::AxBuildHasher;
 pub use axhash_core::{RuntimeBackend, runtime_backend, runtime_has_aes};
 
-// Use [`AxHasher`] directly instead.
-//
-// This alias shadows `std::hash::Hasher` when glob-imported and will be
-// removed in a future major release.
 #[deprecated(since = "0.8.0", note = "use `axhash::AxHasher` directly")]
 pub type Hasher = AxHasher;
 
-// Use [`AxBuildHasher`] directly instead.
-//
-// This alias shadows `std::hash::BuildHasher` when glob-imported and will be
-// removed in a future major release.
 #[deprecated(since = "0.8.0", note = "use `axhash::AxBuildHasher` directly")]
 pub type BuildHasher = AxBuildHasher;
 
