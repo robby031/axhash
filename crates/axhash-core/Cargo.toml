@@ -24,5 +24,6 @@ wasm = []
 workspace = true
 
 [dependencies]
+getrandom = { version = "0.2", default-features = false }
 
 [dev-dependencies]

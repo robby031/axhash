@@ -1,7 +1,7 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 
-use axhash_core::hash::AxHasher;
-use axhash_core::hash::api::{axhash, axhash_seeded};
+use axhash_core::hasher::AxHasher;
+use axhash_core::hasher::api::{axhash, axhash_seeded};
 use axhash_core::{RuntimeBackend, runtime_backend, runtime_has_aes};
 use core::ffi::c_char;
 use core::hash::Hasher;

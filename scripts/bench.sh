@@ -1,16 +1,4 @@
-#!/usr/bin/env bash
-# Run the full axhash benchmark suite.
-#
-# Usage:
-#   ./scripts/bench.sh                    # run all, open HTML report
-#   ./scripts/bench.sh --save-baseline v1 # save a named baseline
-#   ./scripts/bench.sh --baseline v1      # compare against saved baseline
-#   ./scripts/bench.sh throughput         # single suite only
-#
-# Output:
-#   target/criterion/          — SVG charts + HTML report per benchmark
-#   target/bench-summary.txt   — human-readable ns/op summary
-#
+
 set -euo pipefail
 
 SUITES=(throughput latency streaming hashmap concurrent)
@@ -55,7 +43,6 @@ echo ""
 echo "HTML reports: target/criterion/report/index.html"
 echo "Summary:      target/bench-summary.txt"
 
-# Open the HTML report if on macOS
 if command -v open &>/dev/null && [[ -f target/criterion/report/index.html ]]; then
     open target/criterion/report/index.html
 fi

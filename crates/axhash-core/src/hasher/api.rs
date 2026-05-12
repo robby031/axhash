@@ -1,6 +1,6 @@
 use core::hash::{Hash, Hasher};
 
-use crate::bytes::hash_bytes_core;
+use crate::backend::hash_bytes_core;
 use crate::math::{avalanche, seed_lane};
 
 use super::AxHasher;

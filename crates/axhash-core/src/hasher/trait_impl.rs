@@ -1,6 +1,6 @@
 use super::AxHasher;
 
-use crate::bytes::hash_bytes_core;
+use crate::backend::hash_bytes_core;
 use crate::constants::SECRET;
 use crate::math::{avalanche, folded_multiply};
 
