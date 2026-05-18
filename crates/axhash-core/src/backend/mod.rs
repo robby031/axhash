@@ -4,9 +4,7 @@ use crate::math::folded_multiply;
 
 pub(crate) mod scalar;
 
-use scalar::{
-    hash_bytes_17_32, hash_bytes_33_64, hash_bytes_65_128, hash_bytes_short,
-};
+use scalar::{hash_bytes_17_32, hash_bytes_33_64, hash_bytes_65_128, hash_bytes_short};
 
 #[cfg(target_arch = "aarch64")]
 mod aarch64;
@@ -24,8 +22,6 @@ pub(crate) enum Backend {
     X86_64AesAvx2,
 }
 
-/// Long-input dispatch. SIMD and scalar backends use different algorithms for >128 bytes
-/// (intentional performance trade-off); short inputs (<=128) are identical across backends.
 #[inline(always)]
 fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u64 {
     match selected_backend() {

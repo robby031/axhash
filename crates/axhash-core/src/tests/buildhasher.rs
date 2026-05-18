@@ -1,7 +1,7 @@
-use crate::hasher::AxHasher;
-use crate::hasher::api::*;
 use crate::AxBuildHasher;
 use crate::RuntimeBackend;
+use crate::hasher::AxHasher;
+use crate::hasher::api::*;
 
 #[test]
 fn default_equals_new() {
@@ -39,12 +39,19 @@ fn random_seed_produces_different_hashes() {
     use core::hash::{BuildHasher, Hasher};
     let bh1 = AxBuildHasher::random();
     let bh2 = AxBuildHasher::random();
-    assert_ne!(bh1.prepared_seed, bh2.prepared_seed, "random seeds collided");
+    assert_ne!(
+        bh1.prepared_seed, bh2.prepared_seed,
+        "random seeds collided"
+    );
     let mut h1 = bh1.build_hasher();
     let mut h2 = bh2.build_hasher();
     h1.write(b"same payload");
     h2.write(b"same payload");
-    assert_ne!(h1.finish(), h2.finish(), "randomized hashers produced identical output");
+    assert_ne!(
+        h1.finish(),
+        h2.finish(),
+        "randomized hashers produced identical output"
+    );
 }
 
 #[test]
@@ -80,8 +87,7 @@ fn crate_root_reexports_match_hash_api() {
 #[test]
 fn runtime_backend_smoke_test() {
     match crate::runtime_backend() {
-        RuntimeBackend::Scalar
-        | RuntimeBackend::Aarch64AesNeon
-        | RuntimeBackend::X86_64AesAvx2 => {}
+        RuntimeBackend::Scalar | RuntimeBackend::Aarch64AesNeon | RuntimeBackend::X86_64AesAvx2 => {
+        }
     }
 }

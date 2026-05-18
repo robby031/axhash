@@ -1,4 +1,3 @@
-
 #[test]
 fn backend_parity_short_inputs() {
     let seed = 0x1234_5678_9abc_def0u64;
@@ -39,9 +38,8 @@ fn backend_parity_long_inputs() {
 
     let acc = crate::math::seed_lane(seed, 0);
     let rotated = acc.rotate_right(data.len() as u32);
-    let scalar_raw = unsafe {
-        crate::backend::scalar::hash_bytes_long(data.as_ptr(), data.len(), rotated)
-    };
+    let scalar_raw =
+        unsafe { crate::backend::scalar::hash_bytes_long(data.as_ptr(), data.len(), rotated) };
     let scalar_hash = crate::math::avalanche(scalar_raw);
 
     assert_eq!(

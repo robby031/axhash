@@ -32,8 +32,14 @@ unsafe fn lanes(vec: __m128i) -> [u64; 2] {
 #[inline]
 unsafe fn process_128_block_x86(
     ptr: *const u8,
-    v0: &mut __m128i, v1: &mut __m128i, v2: &mut __m128i, v3: &mut __m128i,
-    v4: &mut __m128i, v5: &mut __m128i, v6: &mut __m128i, v7: &mut __m128i,
+    v0: &mut __m128i,
+    v1: &mut __m128i,
+    v2: &mut __m128i,
+    v3: &mut __m128i,
+    v4: &mut __m128i,
+    v5: &mut __m128i,
+    v6: &mut __m128i,
+    v7: &mut __m128i,
 ) {
     let (d0, d1) = unsafe { load_pair(ptr) };
     let (d2, d3) = unsafe { load_pair(ptr.add(32)) };
@@ -71,16 +77,30 @@ pub(crate) unsafe fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u6
     while offset + 128 <= len {
         unsafe {
             process_128_block_x86(
-                ptr.add(offset), &mut v0, &mut v1, &mut v2, &mut v3,
-                &mut v4, &mut v5, &mut v6, &mut v7,
+                ptr.add(offset),
+                &mut v0,
+                &mut v1,
+                &mut v2,
+                &mut v3,
+                &mut v4,
+                &mut v5,
+                &mut v6,
+                &mut v7,
             );
         }
         offset += 128;
     }
     unsafe {
         process_128_block_x86(
-            ptr.add(len - 128), &mut v0, &mut v1, &mut v2, &mut v3,
-            &mut v4, &mut v5, &mut v6, &mut v7,
+            ptr.add(len - 128),
+            &mut v0,
+            &mut v1,
+            &mut v2,
+            &mut v3,
+            &mut v4,
+            &mut v5,
+            &mut v6,
+            &mut v7,
         );
     }
 

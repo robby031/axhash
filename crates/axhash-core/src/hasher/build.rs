@@ -24,13 +24,10 @@ impl AxBuildHasher {
         }
     }
 
-    /// Create a new build hasher with a randomized seed drawn from OS entropy.
-    /// Panics if the OS entropy source is unavailable.
     #[inline]
     pub fn random() -> Self {
-        let mut buf = [0u8; 8];
-        match getrandom::getrandom(&mut buf) {
-            Ok(()) => Self::with_seed(u64::from_le_bytes(buf)),
+        match getrandom::u64() {
+            Ok(seed) => Self::with_seed(seed),
             Err(e) => panic!("failed to obtain random seed for AxBuildHasher: {e:?}"),
         }
     }

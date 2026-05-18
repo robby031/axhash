@@ -11,8 +11,16 @@ pub(super) unsafe fn read_partial_u64(ptr: *const u8, len: usize) -> u64 {
         (a as u64) | ((b as u64) << 32)
     } else {
         let b0 = unsafe { *ptr } as u64;
-        let b1 = if len > 1 { (unsafe { *ptr.add(1) }) as u64 } else { 0 };
-        let b2 = if len > 2 { (unsafe { *ptr.add(2) }) as u64 } else { 0 };
+        let b1 = if len > 1 {
+            (unsafe { *ptr.add(1) }) as u64
+        } else {
+            0
+        };
+        let b2 = if len > 2 {
+            (unsafe { *ptr.add(2) }) as u64
+        } else {
+            0
+        };
         b0 | (b1 << 8) | (b2 << 16)
     }
 }

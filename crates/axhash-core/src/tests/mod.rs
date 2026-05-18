@@ -1,8 +1,8 @@
 #![allow(unused_imports)]
 
+use crate::AxBuildHasher;
 use crate::hasher::AxHasher;
 use crate::hasher::api::*;
-use crate::AxBuildHasher;
 use core::hash::{BuildHasher, Hash, Hasher};
 
 #[derive(Hash)]
@@ -12,8 +12,6 @@ pub(crate) struct DemoRecord {
     pub flags: u32,
 }
 
-/// Measure chi-squared uniformity of `hash & mask` across `buckets`.
-/// Returns (chi_squared, max_deviation_ratio).
 pub(crate) fn chi_squared_uniformity(hashes: &[u64], mask: u64) -> (f64, f64) {
     let buckets = (mask + 1) as usize;
     let mut counts = vec![0usize; buckets];
@@ -34,7 +32,6 @@ pub(crate) fn chi_squared_uniformity(hashes: &[u64], mask: u64) -> (f64, f64) {
     (chi2, max_dev)
 }
 
-/// Pragmatic smoke-test threshold: chi2 / df < 2.0 and max deviation < 30%.
 pub(crate) fn assert_uniform(label: &str, hashes: &[u64], mask: u64) {
     let buckets = (mask + 1) as usize;
     let (chi2, max_dev) = chi_squared_uniformity(hashes, mask);
@@ -57,7 +54,6 @@ pub(crate) fn assert_uniform(label: &str, hashes: &[u64], mask: u64) {
     );
 }
 
-/// Assert collision rate is below a threshold.
 pub(crate) fn assert_collision_rate(label: &str, total: usize, collisions: usize, max_rate: f64) {
     let rate = collisions as f64 / total as f64;
     assert!(
@@ -71,7 +67,6 @@ pub(crate) fn assert_collision_rate(label: &str, total: usize, collisions: usize
     );
 }
 
-/// Count collisions for a batch of keys.
 pub(crate) fn count_collisions(hashes: &[u64]) -> usize {
     use std::collections::HashSet;
     let mut seen = HashSet::with_capacity(hashes.len());
@@ -84,10 +79,10 @@ pub(crate) fn count_collisions(hashes: &[u64]) -> usize {
     dups
 }
 
-mod buildhasher;
-mod determinism;
-mod trait_contract;
 mod backend_parity;
-mod lower_bits;
+mod buildhasher;
 mod collisions;
+mod determinism;
+mod lower_bits;
 mod predictability;
+mod trait_contract;

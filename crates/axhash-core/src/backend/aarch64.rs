@@ -7,8 +7,14 @@ use core::arch::aarch64::*;
 #[inline]
 unsafe fn process_128_block_aarch64(
     ptr: *const u8,
-    v0: &mut uint8x16_t, v1: &mut uint8x16_t, v2: &mut uint8x16_t, v3: &mut uint8x16_t,
-    v4: &mut uint8x16_t, v5: &mut uint8x16_t, v6: &mut uint8x16_t, v7: &mut uint8x16_t,
+    v0: &mut uint8x16_t,
+    v1: &mut uint8x16_t,
+    v2: &mut uint8x16_t,
+    v3: &mut uint8x16_t,
+    v4: &mut uint8x16_t,
+    v5: &mut uint8x16_t,
+    v6: &mut uint8x16_t,
+    v7: &mut uint8x16_t,
 ) {
     let d0 = unsafe { r_128(ptr) };
     let d1 = unsafe { r_128(ptr.add(16)) };
@@ -49,16 +55,30 @@ pub(crate) unsafe fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u6
     while offset + 128 <= len {
         unsafe {
             process_128_block_aarch64(
-                ptr.add(offset), &mut v0, &mut v1, &mut v2, &mut v3,
-                &mut v4, &mut v5, &mut v6, &mut v7,
+                ptr.add(offset),
+                &mut v0,
+                &mut v1,
+                &mut v2,
+                &mut v3,
+                &mut v4,
+                &mut v5,
+                &mut v6,
+                &mut v7,
             );
         }
         offset += 128;
     }
     unsafe {
         process_128_block_aarch64(
-            ptr.add(len - 128), &mut v0, &mut v1, &mut v2, &mut v3,
-            &mut v4, &mut v5, &mut v6, &mut v7,
+            ptr.add(len - 128),
+            &mut v0,
+            &mut v1,
+            &mut v2,
+            &mut v3,
+            &mut v4,
+            &mut v5,
+            &mut v6,
+            &mut v7,
         );
     }
 
