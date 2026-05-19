@@ -52,7 +52,7 @@ repository = "https://github.com/robby031/axhash"
 description = "High-performance AxHash engine for multiple environments"
 
 [workspace.dependencies]
-axhash-core = { path = "crates/axhash-core", version = "0.11.0" }
+axhash-core = { path = "crates/axhash-core", version = "0.12.0" }
 criterion = { version = "0.8.2", features = ["html_reports"] }
 
 [workspace.lints.rust]
