@@ -1,17 +1,17 @@
+
 # Benchmarks — AxHash v0.10.0
 
-Benchmark dijalankan di Apple Silicon M4, profile `release` (lto=fat,
-codegen-units=1). Hasil di bawah memakai dua tool:
+Benchmarks were run on Apple Silicon M4, `release` profile (lto=fat, codegen-units=1). The results below use two tools:
 
-- **Criterion.rs** untuk angka mikro-benchmark internal (per-API, per-payload).
-- **`axhash-headtohead`** untuk perbandingan langsung lintas hasher.
+- **Criterion.rs** for internal micro-benchmark numbers (per-API, per-payload).
+- **`axhash-headtohead`** for direct cross-hasher comparisons.
 
-Untuk validasi statistik distribusi & collision dipakai **SMHasher3** (fork
-fwojcik). Lihat bagian akhir.
+For statistical distribution & collision validation, **SMHasher3** (fwojcik fork) was used. See the end section.
 
-## Ringkasan v0.10.0 (E3, no-avalanche)
+## Summary v0.10.0 (E3, no-avalanche)
 
-| Metrik | v0.10.0 | v0.9.0 | Perubahan |
+
+| Metric | v0.10.0 | v0.9.0 | Change |
 |--------|---------:|---------:|----------:|
 | One-shot 64 KiB (throughput) | ~73 GiB/s | ~95.6 GiB/s | −24% |
 | One-shot 4 KiB | ~84 GiB/s | ~99.2 GiB/s | −15% |
@@ -29,22 +29,15 @@ fwojcik). Lihat bagian akhir.
 | Head-to-head mixed (10k) | **7.67 ns** | — | **best non-fxhash** |
 | **SMHasher3 full suite** | **188/188 PASS** | 145/188 FAIL | **+30%** |
 
-> **Trade-off v0.10.0:** Bulk throughput menurun karena algoritma menambah
-> mixing per-branch untuk lulus SMHasher3 (Bug A/B/C/D di v0.9.0).
-> Sebaliknya **tiny-key latency (≤16B) turun signifikan** karena avalanche
-> finalizer dihapus setelah branch finalize terbukti cukup strong.
-> Net result: real-world HashMap workload `get-miss` & latency-sensitive
-> path lebih cepat dari v0.9.0, throughput bulk sedikit menurun.
 
-> Trade-off v0.10.0: throughput sedikit menurun untuk short/medium key,
-> ditukar dengan **kualitas distribusi industrial-grade** (188/188 SMHasher3).
-> Versi 0.9.0 punya XOR cancellation di tail short-key, lane cancellation
-> di long-path, dan linear length-XOR yang membuat banyak collision
-> struktural. Lihat `doc/smhasher3-roadmap.md` untuk detail.
+> **Trade-off v0.10.0:** Bulk throughput decreased because the algorithm adds per-branch mixing to pass SMHasher3 (Bug A/B/C/D in v0.9.0). Conversely, **tiny-key latency (≤16B) dropped significantly** because the avalanche finalizer was removed after the branch finalizer proved strong enough. Net result: real-world HashMap workload `get-miss` & latency-sensitive path are faster than v0.9.0, bulk throughput slightly decreased.
 
-## Head-to-head vs hasher populer
+> Trade-off v0.10.0: throughput slightly decreased for short/medium keys, exchanged for **industrial-grade distribution quality** (188/188 SMHasher3). Version 0.9.0 had XOR cancellation in short-key tail, lane cancellation in long-path, and linear length-XOR causing many collisions.
 
-Apple M4, single-thread, median 300 sample × 200 batch. Sumber:
+
+## Head-to-head vs popular hashers
+
+Apple M4, single-thread, median 300 sample × 200 batch. Source:
 `cargo run --release -p axhash-headtohead`.
 
 ### One-shot throughput (GB/s, higher = better)
@@ -59,8 +52,8 @@ Apple M4, single-thread, median 300 sample × 200 batch. Sumber:
 | siphash-1-3   | 1.13 | 2.84  | 5.39  | 5.80  | 5.65  | 5.79  |
 | highwayhash   | 0.23 | 0.97  | 3.41  | 7.98  | 9.96  | 11.07 |
 
-axhash unggul **bulk throughput ≥ 4 KB** (AES-NEON pipeline). Kompetitor lebih
-cepat di short-key.
+
+axhash excels in **bulk throughput ≥ 4 KB** (AES-NEON pipeline). Competitors are faster on short keys.
 
 ### Small-key latency (ns/op, lower = better)
 
@@ -74,8 +67,8 @@ cepat di short-key.
 | siphash-1-3  | 3.54 | 3.54 | 4.17 | 5.21 | 7.29 | 11.88|
 | highwayhash  | 17.29| 17.50| 16.66| 16.66| 17.50| 20.62|
 
-Tiny-key latency turun signifikan (8-16B: −30%) setelah avalanche
-dihilangkan (lihat *Catatan* di akhir).
+
+Tiny-key latency dropped significantly (8-16B: −30%) after avalanche was removed (see *Notes* at the end).
 
 ### Streaming 4 KiB via chunked writes (ns total per hash, lower = better)
 
@@ -89,8 +82,9 @@ dihilangkan (lihat *Catatan* di akhir).
 | siphash-1-3  | 1482 | 923  | 810   | 750   | 714   | 718   |
 | highwayhash  | 1681 | 761  | 541   | 416   | 374   | 366   |
 
-axhash **paling cepat untuk chunked-write 1 KB & 4 KB** (66 ns dan 41 ns),
-karena AES-NEON pipeline jelas-jelas amortized di throughput tinggi.
+
+axhash is **the fastest for chunked-write 1 KB & 4 KB** (66 ns and 41 ns), because the AES-NEON pipeline is clearly amortized at high throughput.
+
 
 ### Concurrent scaling (ops/sec, 256 B payload)
 
@@ -104,7 +98,8 @@ karena AES-NEON pipeline jelas-jelas amortized di throughput tinggi.
 | siphash-1-3  | 2.08 e7  | 4.15 e7   | 8.34 e7   | 1.12 e8   |
 | highwayhash  | 2.79 e7  | 5.55 e7   | 1.10 e8   | 1.48 e8   |
 
-### Hash quality (head-to-head sampling, semua hasher ≈ ideal)
+
+### Hash quality (head-to-head sampling, all hashers ≈ ideal)
 
 | Hasher       | avalanche % | collision % | chi² (256 buckets) | max bit-bias % |
 |--------------|------------:|------------:|-------------------:|---------------:|
@@ -116,10 +111,8 @@ karena AES-NEON pipeline jelas-jelas amortized di throughput tinggi.
 | siphash-1-3  | 49.90       | 0.000000    | 248.7              | 0.4088         |
 | highwayhash  | 50.15       | 0.000000    | 256.3              | 0.3572         |
 
-Quality tetap **dalam range yang ideal** (avalanche ≈ 50%, 0 collision
-di 1M random inputs). Bit-bias 0.41% sebanding dengan siphash-1-3 dan
-ahash; sedikit lebih tinggi dari xxh3 (0.36) tapi tetap aman untuk hash
-non-kriptografik. Trade-off ini disengaja untuk gain latency 30%.
+
+Quality remains **in the ideal range** (avalanche ≈ 50%, 0 collision in 1M random inputs). Bit-bias 0.41% is comparable to siphash-1-3 and ahash; slightly higher than xxh3 (0.36) but still safe for non-cryptographic hashes. This trade-off is intentional for a 30% latency gain.
 
 ### HashMap workload (10 000 entries, ns/op)
 
@@ -147,11 +140,11 @@ non-kriptografik. Trade-off ini disengaja untuk gain latency 30%.
 | siphash-1-3  | 14.06| 14.15  | 14.21 | 0.21    |
 | highwayhash  | 45.67| 46.02  | 46.27 | 0.47    |
 
-axhash **menang head-to-head di mixed workload** (7.67 ns vs xxh3 16.02 ns,
-ahash 9.28 ns), competitive di get-hit dengan median 1.40 ns. Mengalahkan
-xxh3 5.9× di mixed workload.
 
-## Detail criterion (single-hasher)
+axhash **wins head-to-head in mixed workload** (7.67 ns vs xxh3 16.02 ns, ahash 9.28 ns), competitive in get-hit with a median of 1.40 ns. Beats xxh3 by 5.9× in mixed workload.
+
+
+## Detailed criterion (single-hasher)
 
 ### One-shot throughput
 
@@ -173,6 +166,7 @@ xxh3 5.9× di mixed workload.
 | `axhash_of::<u64>()`             | 541 ps   | 1.85 Gelem/s |
 | `axhash_of::<&str>()` (8 char)   | 2.97 ns  | 337 Melem/s  |
 
+
 ### Hasher latency
 
 | Operation                | Latency |
@@ -184,8 +178,8 @@ xxh3 5.9× di mixed workload.
 | `finish()` (idempotent)  | 552 ps  |
 | `finish()` second call   | 757 ps  |
 
-`write_u64 + finish` turun **33%** vs baseline 2-mul avalanche (535 → 358 ps)
-karena Hash trait integration paling sensitif terhadap finalize cost.
+
+`write_u64 + finish` dropped **33%** vs baseline 2-mul avalanche (535 → 358 ps) because Hash trait integration is most sensitive to finalize cost.
 
 ### HashMap (Ax vs `DefaultHasher`)
 
@@ -213,60 +207,56 @@ karena Hash trait integration paling sensitif terhadap finalize cost.
 
 `build-hasher` instantiate: 1.44 ns
 
+
 ## SMHasher3 validation — **188/188 PASS** ✅
 
-Suite SMHasher3 v3 fork ([fwojcik/smhasher3](https://gitlab.com/fwojcik/smhasher3))
-dijalankan penuh terhadap `axhash-ffi` lewat `axhash_bytes_seeded`.
+SMHasher3 v3 fork suite ([fwojcik/smhasher3](https://gitlab.com/fwojcik/smhasher3)) was run fully against `axhash-ffi` via `axhash_bytes_seeded`.
 
-| Item | Nilai |
+| Item | Value |
 |------|------|
-| Hasil overall | **`pass`** |
+| Overall result | **`pass`** |
 | Sub-test passed | **188 / 188** |
 | Verification value (LE) | `0xB6E1DBEA` |
-| Total durasi | 244 detik |
+| Total duration | 244 seconds |
 | Backend runtime | `aarch64_aes_neon` (Apple M4) |
 | Hash bits | 64 |
 
-Test categories yang dilibatkan:
+Test categories included:
 
 - **Sanity** — verification, sanity check, append/prepend zeroes, thread-safety
 - **Avalanche** & **BIC** (bit independence)
-- **Keyset**: Zeroes, Cyclic, Sparse, Permutation, Text, TwoBytes,
-  PerlinNoise, Bitflip, Long (alnum random with varying head/tail)
-- **Seed-side**: Seed Zeroes/Sparse/BlockLength/BlockOffset/Avalanche/BIC/
-  Bitflip dan keyset 'Seed'
-- **Statistik distribusi**: MomentChi2, DiffDist, per-bit distribution bias
+- **Keyset**: Zeroes, Cyclic, Sparse, Permutation, Text, TwoBytes, PerlinNoise, Bitflip, Long (alnum random with varying head/tail)
+- **Seed-side**: Seed Zeroes/Sparse/BlockLength/BlockOffset/Avalanche/BIC/ Bitflip and keyset 'Seed'
+- **Distribution statistics**: MomentChi2, DiffDist, per-bit distribution bias
 
-Lihat [`doc/smhasher3-roadmap.md`](smhasher3-roadmap.md) untuk perjalanan
-perbaikan dari baseline 145/188 (v0.9.0) ke 188/188 (v0.10.0) — termasuk
-4 bug struktural yang ditemukan dan diperbaiki.
 
-## Catatan
+## Streaming optimization (v0.10.x)
 
-- **Versi 0.9.0 → 0.10.0** mengubah hash output (verification value
-  `0xB6E1DBEA`). Tidak kompatibel ke belakang untuk persisted-hash use-case.
-- **Hot-path optimization v0.10.0**: setelah verifikasi SMHasher3 188/188
-  dengan baseline 2-mul Murmur3 fmix64, profile menunjukkan avalanche
-  sebagai self-time terbesar (14.79s di Instruments). Tiga eksperimen
-  diuji terhadap full SMHasher3 suite:
+`AxHasher::write(&[u8])` for slices **< 8 bytes** is redirected to the same sponge buffer as `write_u8/u16/u32`. This provides semantic consistency (`write(&[0x01, 0x02])` ≡ `write_u16(0x0201)`) AND avoids dispatch to `hash_bytes_core` for sub-word writes — which usually come from `Hash` derive for structs with many `u8`/`u16` fields.
+
+Slices ≥ 8 bytes still go through `hash_bytes_core` because the `hash_bytes_short` branch len≥8 is already just 2 folded_multiply — optimal without sponge overhead.
+
+Profiler workload (`run_tiny_key_streaming`, 1.25e9 stream-of-32B):
+
+| Metric | Before streaming opt | After | Δ |
+|--------|----------------------:|--------:|------:|
+| Profiler total user time | 25.39 s | 24.43 s | **−3.8%** |
+| Streaming 8B chunks (h2h) | 654 ns | 654 ns | same |
+| Latency 4-16B (h2h) | 1.46 ns | 1.46 ns | same |
+| SMHasher3 | 188/188 | **188/188** | unaffected |
+
+Verification value did not change (`0xB6E1DBEA`) because the one-shot FFI path (used by SMHasher3) was not modified.
+
+
+## Notes
+
+- **Version 0.9.0 → 0.10.0** changes the hash output (verification value `0xB6E1DBEA`). Not backward compatible for persisted-hash use-cases.
+- **Hot-path optimization v0.10.0**: after SMHasher3 188/188 verification with baseline 2-mul Murmur3 fmix64, profiling showed avalanche as the largest self-time (14.79s in Instruments). Three experiments were tested against the full SMHasher3 suite:
 
   | Avalanche | SMHasher3 | Verification | u64 latency |
   |-----------|-----------|--------------|-------------|
   | 2 mul (Murmur3 fmix64) | 188/188 | `0xCE7A8AFE` | 535 ps |
   | 1 mul (single half-round) | 188/188 | `0x68FD9F96` | ~440 ps |
-  | **0 mul (identity, dipilih)** | **188/188** | **`0xB6E1DBEA`** | **358 ps** |
+  | **0 mul (identity, chosen)** | **188/188** | **`0xB6E1DBEA`** | **358 ps** |
 
-  Branch finalizer (selalu berakhir dengan ≥1 `folded_multiply`) sudah
-  cukup kuat untuk lulus SMHasher3 tanpa avalanche tambahan, sehingga
-  E3 (no avalanche) dipilih untuk maximum tiny-key performance.
-- **Build flags**: bench dengan `--release` profile (lto=fat,
-  codegen-units=1). Backend AES-NEON otomatis di Apple Silicon.
-- **Reproduksi**:
-  ```bash
-  # Head-to-head
-  cargo run --release -p axhash-headtohead
-  # Criterion micro-bench
-  cargo bench
-  # SMHasher3 full suite (build dulu lihat smhasher3-roadmap.md)
-  ~/Development/smhasher3/build/SMHasher3 AxHash-64
-  ```
+  Branch finalizer (always ends with ≥1 `folded_multiply`) is strong enough to pass SMHasher3 without additional avalanche, so E3 (no avalanche) was chosen for maximum tiny-key performance.

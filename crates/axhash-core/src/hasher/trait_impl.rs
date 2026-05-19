@@ -20,6 +20,34 @@ impl Hasher for AxHasher {
 
     #[inline(always)]
     fn write(&mut self, bytes: &[u8]) {
+        let len = bytes.len();
+        if len == 0 {
+            return;
+        }
+
+        // Slice sangat pendek (<8 byte) di-buffer ke sponge — overhead
+        // push_bytes lebih murah dari hash_bytes_short dispatch untuk
+        // sub-word writes (write_u8 trait, partial byte streams).
+        //
+        // Slice 8..=16 byte tetap lewat hash_bytes_core karena hash_bytes_short
+        // branch len≥8 hanya 2 folded_multiply — sudah optimal dan tidak
+        // perlu sponge overhead.
+        if len < 8 {
+            let used = (self.sponge_bits >> 3) as usize;
+            let free = 16 - used;
+
+            if len <= free {
+                self.push_bytes(bytes);
+            } else {
+                self.push_bytes(&bytes[..free]);
+                self.flush_sponge_hot();
+                self.push_bytes(&bytes[free..]);
+            }
+            return;
+        }
+
+        // Slice panjang: flush sponge dulu, lalu lewat hash_bytes_core
+        // (AES path untuk len > 128, scalar untuk 17..=128).
         if self.sponge_bits != 0 {
             self.flush_sponge_slow();
         }

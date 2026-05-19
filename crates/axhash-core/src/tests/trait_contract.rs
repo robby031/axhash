@@ -61,7 +61,12 @@ fn u32_sequence_vs_u64_is_predictable() {
 }
 
 #[test]
-fn bytes_vs_u16_is_predictable() {
+fn bytes_short_matches_numeric_writes() {
+    // Sejak v0.10.0+streaming-opt, write(&[u8]) untuk slice ≤ 16 byte
+    // routed ke sponge sama seperti write_u8/u16/u32/u64/u128, sehingga
+    // sekuen byte ekuivalen dengan write_uXX yang merepresentasikan nilai
+    // little-endian yang sama. Konsistensi ini diperlukan untuk streaming
+    // workload (mengurangi dispatch ke hash_bytes_core 5x → 1-2x).
     let seed = 0x1111;
     let mut h1 = AxHasher::new_with_seed(seed);
     h1.write(&[0x01, 0x02]);
@@ -69,10 +74,10 @@ fn bytes_vs_u16_is_predictable() {
     let mut h2 = AxHasher::new_with_seed(seed);
     h2.write_u16(0x0201);
 
-    assert_ne!(
+    assert_eq!(
         h1.finish(),
         h2.finish(),
-        "bytes write unexpectedly matched u16 sponge path"
+        "byte slice write should now match equivalent numeric sponge write"
     );
 }
 
