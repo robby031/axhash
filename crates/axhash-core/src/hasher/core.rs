@@ -30,8 +30,6 @@ impl AxHasher {
         }
     }
 
-    /// Hot-path flush: di-inline. Untuk streaming workload dengan banyak
-    /// write pendek, flush terjadi setiap 16 byte (frekuen, BUKAN cold).
     #[inline(always)]
     pub(crate) fn flush_sponge_hot(&mut self) {
         let lo = self.sponge as u64;
@@ -41,8 +39,6 @@ impl AxHasher {
         self.sponge_bits = 0;
     }
 
-    /// Cold-path flush: dipanggil saat sponge kebetulan punya data sebelum
-    /// transisi ke jalur write panjang. Tidak diharapkan sering.
     #[inline(never)]
     #[cold]
     pub(crate) fn flush_sponge_slow(&mut self) {
@@ -59,9 +55,6 @@ impl AxHasher {
         self.sponge_bits += bits;
     }
 
-    /// Push up to (16 - sponge_bytes_used) bytes into the sponge. Caller harus
-    /// memastikan ada cukup ruang. Specialize ukuran-ukuran umum untuk
-    /// menghindari 16-byte stack buffer + memcpy untuk read kecil.
     #[inline(always)]
     pub(crate) fn push_bytes(&mut self, bytes: &[u8]) {
         let n = bytes.len();

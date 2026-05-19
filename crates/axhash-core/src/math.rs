@@ -14,14 +14,8 @@ pub(crate) const fn seed_lane(seed: u64, lane: usize) -> u64 {
     )
 }
 
-// Accumulator default untuk axhash(bytes) dengan seed 0.
-// Nilainya identik dengan seed_lane(0, 0) namun dievaluasi di compile-time
-// dan dapat dipakai ulang tanpa biaya runtime
 pub(crate) const DEFAULT_ACC: u64 = seed_lane(0, 0);
 
-// Branch finalizer sudah strong (selalu berakhir dengan satu atau lebih
-// folded_multiply). Avalanche tambahan tidak diperlukan untuk lulus
-// SMHasher3 188/188; dipertahankan sebagai identity agar API tetap stabil.
 #[inline(always)]
 pub(crate) const fn avalanche(x: u64) -> u64 {
     x
