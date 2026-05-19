@@ -1,5 +1,5 @@
-use crate::hasher::AxHasher;
 use crate::AxBuildHasher;
+use crate::hasher::AxHasher;
 use core::hash::{BuildHasher, Hasher};
 
 #[test]
@@ -46,7 +46,10 @@ fn hasher_is_pure_no_hidden_state() {
     h2.write(data);
     let r2 = h2.finish();
 
-    assert_eq!(r1, r2, "Hasher must be pure: same seed + same input -> same output");
+    assert_eq!(
+        r1, r2,
+        "Hasher must be pure: same seed + same input -> same output"
+    );
 }
 
 #[test]

@@ -1,0 +1,204 @@
+axhash/one-shot/axhash/4B
+                        time:   [1.1200 ns 1.1234 ns 1.1243 ns]
+                        thrpt:  [3.3134 GiB/s 3.3160 GiB/s 3.3263 GiB/s]
+axhash/one-shot/axhash/16B
+                        time:   [1.1373 ns 1.1410 ns 1.1561 ns]
+                        thrpt:  [12.889 GiB/s 13.059 GiB/s 13.103 GiB/s]
+axhash/one-shot/axhash/64B
+                        time:   [2.4527 ns 2.4797 ns 2.5874 ns]
+                        thrpt:  [23.037 GiB/s 24.037 GiB/s 24.301 GiB/s]
+axhash/one-shot/axhash/256B
+                        time:   [8.5925 ns 8.6514 ns 8.8871 ns]
+                        thrpt:  [26.828 GiB/s 27.558 GiB/s 27.747 GiB/s]
+axhash/one-shot/axhash/4K
+                        time:   [41.973 ns 42.357 ns 43.894 ns]
+                        thrpt:  [86.906 GiB/s 90.060 GiB/s 90.885 GiB/s]
+axhash/one-shot/axhash/64K
+                        time:   [676.25 ns 682.26 ns 706.32 ns]
+                        thrpt:  [86.413 GiB/s 89.460 GiB/s 90.255 GiB/s]
+axhash/seeded/axhash_seeded/4B
+                        time:   [1.1764 ns 1.1831 ns 1.2099 ns]
+                        thrpt:  [3.0791 GiB/s 3.1488 GiB/s 3.1667 GiB/s]
+axhash/seeded/axhash_seeded/16B
+                        time:   [1.0699 ns 1.0730 ns 1.0854 ns]
+                        thrpt:  [13.729 GiB/s 13.887 GiB/s 13.927 GiB/s]
+axhash/seeded/axhash_seeded/64B
+                        time:   [2.4923 ns 2.5092 ns 2.5766 ns]
+                        thrpt:  [23.133 GiB/s 23.755 GiB/s 23.915 GiB/s]
+axhash/seeded/axhash_seeded/256B
+                        time:   [8.4732 ns 8.5349 ns 8.7817 ns]
+                        thrpt:  [27.150 GiB/s 27.935 GiB/s 28.138 GiB/s]
+axhash/seeded/axhash_seeded/4K
+                        time:   [43.445 ns 43.711 ns 44.778 ns]
+                        thrpt:  [85.192 GiB/s 87.271 GiB/s 87.806 GiB/s]
+axhash/seeded/axhash_seeded/64K
+                        time:   [671.57 ns 671.64 ns 671.92 ns]
+                        thrpt:  [90.837 GiB/s 90.875 GiB/s 90.885 GiB/s]
+axhash/hash-trait/axhash_of/struct
+                        time:   [1.0013 ns 1.0021 ns 1.0053 ns]
+                        thrpt:  [994.72 Melem/s 997.92 Melem/s 998.72 Melem/s]
+axhash/hash-trait/axhash_of_seeded/struct
+                        time:   [1.0520 ns 1.0546 ns 1.0652 ns]
+                        thrpt:  [938.80 Melem/s 948.23 Melem/s 950.61 Melem/s]
+axhash/hash-trait/axhash_of/u64
+                        time:   [537.13 ps 540.92 ps 556.10 ps]
+                        thrpt:  [1.7982 Gelem/s 1.8487 Gelem/s 1.8617 Gelem/s]
+axhash/hash-trait/axhash_of/string
+                        time:   [2.9480 ns 2.9709 ns 3.0627 ns]
+                        thrpt:  [326.51 Melem/s 336.59 Melem/s 339.21 Melem/s]
+axhash/wrapper-api/hash/4B
+                        time:   [1.1431 ns 1.1494 ns 1.1744 ns]
+                        thrpt:  [3.1722 GiB/s 3.2411 GiB/s 3.2588 GiB/s]
+axhash/wrapper-api/hash_with_seed/4B
+                        time:   [1.1548 ns 1.1613 ns 1.1872 ns]
+                        thrpt:  [3.1379 GiB/s 3.2079 GiB/s 3.2258 GiB/s]
+axhash/wrapper-api/hash/16B
+                        time:   [1.1056 ns 1.1130 ns 1.1429 ns]
+                        thrpt:  [13.038 GiB/s 13.388 GiB/s 13.478 GiB/s]
+axhash/wrapper-api/hash_with_seed/16B
+                        time:   [1.0946 ns 1.1009 ns 1.1258 ns]
+                        thrpt:  [13.237 GiB/s 13.536 GiB/s 13.613 GiB/s]
+axhash/wrapper-api/hash/64B
+                        time:   [2.5556 ns 2.5684 ns 2.6197 ns]
+                        thrpt:  [22.752 GiB/s 23.207 GiB/s 23.323 GiB/s]
+axhash/wrapper-api/hash_with_seed/64B
+                        time:   [2.5505 ns 2.5682 ns 2.6389 ns]
+                        thrpt:  [22.587 GiB/s 23.209 GiB/s 23.370 GiB/s]
+axhash/wrapper-api/hash/256B
+                        time:   [8.3382 ns 8.3792 ns 8.5429 ns]
+                        thrpt:  [27.908 GiB/s 28.454 GiB/s 28.593 GiB/s]
+axhash/wrapper-api/hash_with_seed/256B
+                        time:   [8.2913 ns 8.3378 ns 8.5239 ns]
+                        thrpt:  [27.971 GiB/s 28.595 GiB/s 28.755 GiB/s]
+axhash/wrapper-api/hash/4K
+                        time:   [42.491 ns 42.685 ns 43.462 ns]
+                        thrpt:  [87.770 GiB/s 89.368 GiB/s 89.776 GiB/s]
+axhash/wrapper-api/hash_with_seed/4K
+                        time:   [43.851 ns 44.254 ns 45.865 ns]
+                        thrpt:  [83.172 GiB/s 86.200 GiB/s 86.992 GiB/s]
+axhash/wrapper-api/hash/64K
+                        time:   [685.60 ns 690.69 ns 711.04 ns]
+                        thrpt:  [85.839 GiB/s 88.369 GiB/s 89.024 GiB/s]
+axhash/wrapper-api/hash_with_seed/64K
+                        time:   [698.28 ns 703.03 ns 722.01 ns]
+                        thrpt:  [84.535 GiB/s 86.817 GiB/s 87.407 GiB/s]
+latency/small-key/axhash/4B
+                        time:   [1.0987 ns 1.1005 ns 1.1009 ns]
+latency/small-key/axhash_seeded/4B
+                        time:   [1.1670 ns 1.1747 ns 1.2051 ns]
+latency/small-key/axhash/16B
+                        time:   [1.1344 ns 1.1431 ns 1.1780 ns]
+latency/small-key/axhash_seeded/16B
+                        time:   [1.1449 ns 1.1472 ns 1.1564 ns]
+latency/small-key/axhash/64B
+                        time:   [2.5789 ns 2.6032 ns 2.7005 ns]
+latency/small-key/axhash_seeded/64B
+                        time:   [2.6055 ns 2.6214 ns 2.6847 ns]
+latency/small-key/axhash/256B
+                        time:   [8.5359 ns 8.5442 ns 8.5774 ns]
+latency/small-key/axhash_seeded/256B
+                        time:   [8.7110 ns 8.7469 ns 8.8906 ns]
+latency/hasher-finish/u64-key
+                        time:   [529.58 ps 535.17 ps 557.49 ps]
+latency/hasher-finish/u32-key
+                        time:   [554.53 ps 557.27 ps 568.25 ps]
+latency/hasher-finish/str-key-8
+                        time:   [1.1142 ns 1.1232 ns 1.1590 ns]
+latency/hasher-finish/str-key-16
+                        time:   [1.1403 ns 1.1437 ns 1.1575 ns]
+latency/finish-idempotent/finish-once
+                        time:   [543.53 ps 547.69 ps 564.32 ps]
+latency/finish-idempotent/finish-twice
+                        time:   [682.10 ps 688.18 ps 712.52 ps]
+hashmap/insert-string/AxBuildHasher/100
+                        time:   [6.8371 µs 6.8770 µs 7.0365 µs]
+                        thrpt:  [14.212 Melem/s 14.541 Melem/s 14.626 Melem/s]
+hashmap/insert-string/DefaultHasher/100
+                        time:   [7.8969 µs 7.8970 µs 7.8976 µs]
+                        thrpt:  [12.662 Melem/s 12.663 Melem/s 12.663 Melem/s]
+hashmap/insert-string/AxBuildHasher/1000
+                        time:   [76.492 µs 76.597 µs 77.019 µs]
+                        thrpt:  [12.984 Melem/s 13.055 Melem/s 13.073 Melem/s]
+hashmap/insert-string/DefaultHasher/1000
+                        time:   [77.144 µs 77.506 µs 78.951 µs]
+                        thrpt:  [12.666 Melem/s 12.902 Melem/s 12.963 Melem/s]
+hashmap/insert-string/AxBuildHasher/10000
+                        time:   [706.12 µs 710.75 µs 729.28 µs]
+                        thrpt:  [13.712 Melem/s 14.070 Melem/s 14.162 Melem/s]
+hashmap/insert-string/DefaultHasher/10000
+                        time:   [805.06 µs 806.14 µs 810.46 µs]
+                        thrpt:  [12.339 Melem/s 12.405 Melem/s 12.421 Melem/s]
+hashmap/insert-string/AxBuildHasher/100000
+                        time:   [7.0895 ms 7.1250 ms 7.2667 ms]
+                        thrpt:  [13.761 Melem/s 14.035 Melem/s 14.105 Melem/s]
+hashmap/insert-string/DefaultHasher/100000
+                        time:   [7.6935 ms 7.7071 ms 7.7613 ms]
+                        thrpt:  [12.884 Melem/s 12.975 Melem/s 12.998 Melem/s]
+hashmap/insert-u64/AxBuildHasher/100
+                        time:   [1.2504 µs 1.2541 µs 1.2690 µs]
+                        thrpt:  [78.801 Melem/s 79.736 Melem/s 79.974 Melem/s]
+hashmap/insert-u64/DefaultHasher/100
+                        time:   [2.1785 µs 2.1906 µs 2.2387 µs]
+                        thrpt:  [44.668 Melem/s 45.650 Melem/s 45.902 Melem/s]
+hashmap/insert-u64/AxBuildHasher/1000
+                        time:   [14.402 µs 14.408 µs 14.431 µs]
+                        thrpt:  [69.296 Melem/s 69.407 Melem/s 69.435 Melem/s]
+hashmap/insert-u64/DefaultHasher/1000
+                        time:   [31.025 µs 31.083 µs 31.314 µs]
+                        thrpt:  [31.934 Melem/s 32.172 Melem/s 32.232 Melem/s]
+hashmap/insert-u64/AxBuildHasher/10000
+                        time:   [119.91 µs 120.51 µs 120.66 µs]
+                        thrpt:  [82.878 Melem/s 82.981 Melem/s 83.394 Melem/s]
+hashmap/insert-u64/DefaultHasher/10000
+                        time:   [279.32 µs 280.07 µs 283.04 µs]
+                        thrpt:  [35.331 Melem/s 35.706 Melem/s 35.801 Melem/s]
+hashmap/insert-u64/AxBuildHasher/100000
+                        time:   [1.1042 ms 1.1094 ms 1.1301 ms]
+                        thrpt:  [88.487 Melem/s 90.138 Melem/s 90.561 Melem/s]
+hashmap/insert-u64/DefaultHasher/100000
+                        time:   [2.4490 ms 2.4622 ms 2.5152 ms]
+                        thrpt:  [39.758 Melem/s 40.614 Melem/s 40.833 Melem/s]
+hashmap/get-hit/AxBuildHasher/100
+                        time:   [195.40 ns 196.06 ns 198.72 ns]
+                        thrpt:  [503.22 Melem/s 510.04 Melem/s 511.77 Melem/s]
+hashmap/get-hit/DefaultHasher/100
+                        time:   [434.54 ns 439.39 ns 458.80 ns]
+                        thrpt:  [217.96 Melem/s 227.59 Melem/s 230.13 Melem/s]
+hashmap/get-hit/AxBuildHasher/1000
+                        time:   [1.7203 µs 1.7255 µs 1.7461 µs]
+                        thrpt:  [572.71 Melem/s 579.55 Melem/s 581.29 Melem/s]
+hashmap/get-hit/DefaultHasher/1000
+                        time:   [4.6036 µs 4.6129 µs 4.6502 µs]
+                        thrpt:  [215.05 Melem/s 216.78 Melem/s 217.22 Melem/s]
+hashmap/get-hit/AxBuildHasher/10000
+                        time:   [19.078 µs 19.201 µs 19.692 µs]
+                        thrpt:  [507.82 Melem/s 520.81 Melem/s 524.16 Melem/s]
+hashmap/get-hit/DefaultHasher/10000
+                        time:   [51.764 µs 52.324 µs 52.464 µs]
+                        thrpt:  [190.61 Melem/s 191.12 Melem/s 193.18 Melem/s]
+hashmap/get-hit/AxBuildHasher/100000
+                        time:   [223.74 µs 223.75 µs 223.77 µs]
+                        thrpt:  [446.89 Melem/s 446.94 Melem/s 446.95 Melem/s]
+hashmap/get-hit/DefaultHasher/100000
+                        time:   [598.66 µs 599.92 µs 604.95 µs]
+                        thrpt:  [165.30 Melem/s 166.69 Melem/s 167.04 Melem/s]
+hashmap/get-miss/AxBuildHasher/10000
+                        time:   [14.911 µs 14.929 µs 15.002 µs]
+                        thrpt:  [666.58 Melem/s 669.83 Melem/s 670.65 Melem/s]
+hashmap/get-miss/DefaultHasher/10000
+                        time:   [37.414 µs 37.545 µs 38.067 µs]
+                        thrpt:  [262.69 Melem/s 266.35 Melem/s 267.28 Melem/s]
+hashmap/mixed/AxBuildHasher
+                        time:   [1.0310 ms 1.0369 ms 1.0604 ms]
+                        thrpt:  [9.4300 Melem/s 9.6444 Melem/s 9.6995 Melem/s]
+hashmap/mixed/DefaultHasher
+                        time:   [1.8759 ms 1.8892 ms 1.8925 ms]
+                        thrpt:  [5.2839 Melem/s 5.2932 Melem/s 5.3309 Melem/s]
+hashmap/build-hasher/build_hasher
+                        time:   [1.4344 ns 1.4417 ns 1.4708 ns]
+hashmap/str-keys/insert-1000-AxBuildHasher
+                        time:   [20.811 µs 20.859 µs 21.052 µs]
+                        thrpt:  [47.501 Melem/s 47.941 Melem/s 48.053 Melem/s]
+hashmap/str-keys/insert-1000-DefaultHasher
+                        time:   [33.602 µs 33.628 µs 33.732 µs]
+                        thrpt:  [29.645 Melem/s 29.737 Melem/s 29.760 Melem/s]

@@ -3,7 +3,7 @@ mod util;
 use criterion::{criterion_group, criterion_main};
 use util::{SMALL_SIZES, bench_id, configure_criterion, make_data};
 
-const SEED: u64 = 0x1234_5678_9abc_def0;
+const SEED: u64 = 0x123456789ABCDEF0;
 
 fn bench_small_key_latency(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("latency/small-key");

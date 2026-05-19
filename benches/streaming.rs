@@ -4,7 +4,7 @@ use criterion::{BenchmarkId, Throughput, criterion_group, criterion_main};
 use std::hash::Hasher as _;
 use util::{configure_criterion, make_data};
 
-const SEED: u64 = 0xfeed_beef_cafe_dead;
+const SEED: u64 = 0xFEEDBEEFCAFEDEAD;
 
 const CHUNK_SIZES: &[usize] = &[1, 4, 8, 16, 32, 64, 128, 256, 1024];
 const TOTAL_BYTES: usize = 4096;

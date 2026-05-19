@@ -1,0 +1,8 @@
+[package]
+name = "axhash-profiler"
+version = "0.10.0"
+edition = "2024"
+authors = ["Bagus Dwi Harianto <robbymangkualam2000@gmail.com>"]
+
+[dependencies]
+axhash-core = { path = "../axhash-core" }

@@ -1,13 +1,16 @@
 use core::hash::{Hash, Hasher};
 
 use crate::backend::hash_bytes_core;
-use crate::math::{avalanche, seed_lane};
+use crate::math::{DEFAULT_ACC, avalanche, seed_lane};
 
 use super::AxHasher;
 
 #[inline(always)]
 pub fn axhash(bytes: &[u8]) -> u64 {
-    axhash_seeded(bytes, 0)
+    // Jalur default seed identik dengan axhash_seeded(bytes, 0)
+    // tetapi menggunakan DEFAULT_ACC yang sudah diprecompute di compile-time
+    // sehingga menghindari biaya seed_lane pada runtime
+    avalanche(hash_bytes_core(bytes, DEFAULT_ACC))
 }
 
 #[inline(always)]

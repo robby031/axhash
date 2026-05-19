@@ -1,5 +1,5 @@
-use crate::tests::{assert_collision_rate, count_collisions};
 use crate::hasher::AxHasher;
+use crate::tests::{assert_collision_rate, count_collisions};
 use core::hash::Hasher;
 
 #[test]
@@ -38,12 +38,7 @@ fn collision_audit_zero_filled_buffers() {
         hashes.push(crate::axhash_seeded(&key, seed));
     }
     let collisions = count_collisions(&hashes);
-    assert_collision_rate(
-        "zero-filled buffers",
-        hashes.len(),
-        collisions,
-        0.001,
-    );
+    assert_collision_rate("zero-filled buffers", hashes.len(), collisions, 0.001);
 }
 
 #[test]
@@ -57,19 +52,16 @@ fn collision_audit_repeated_byte_patterns() {
         }
     }
     let collisions = count_collisions(&hashes);
-    assert_collision_rate(
-        "repeated byte patterns",
-        hashes.len(),
-        collisions,
-        0.001,
-    );
+    assert_collision_rate("repeated byte patterns", hashes.len(), collisions, 0.001);
 }
 
 #[test]
 fn collision_audit_adjacent_lengths() {
     let seed = 0x1111_2222_3333_4444u64;
     let mut hashes = Vec::with_capacity(20_000);
-    for base_len in [0usize, 1, 7, 8, 15, 16, 17, 31, 32, 33, 63, 64, 65, 127, 128, 129] {
+    for base_len in [
+        0usize, 1, 7, 8, 15, 16, 17, 31, 32, 33, 63, 64, 65, 127, 128, 129,
+    ] {
         for delta in 0..100usize {
             let len = base_len + delta;
             let key = format!("prefix{:08x}{:08x}", len, delta);
@@ -77,12 +69,7 @@ fn collision_audit_adjacent_lengths() {
         }
     }
     let collisions = count_collisions(&hashes);
-    assert_collision_rate(
-        "adjacent lengths",
-        hashes.len(),
-        collisions,
-        0.001,
-    );
+    assert_collision_rate("adjacent lengths", hashes.len(), collisions, 0.001);
 }
 
 #[test]
@@ -95,12 +82,7 @@ fn collision_audit_incremental_numeric_keys() {
         hashes.push(hasher.finish());
     }
     let collisions = count_collisions(&hashes);
-    assert_collision_rate(
-        "incremental numeric keys",
-        hashes.len(),
-        collisions,
-        0.0005,
-    );
+    assert_collision_rate("incremental numeric keys", hashes.len(), collisions, 0.0005);
 }
 
 #[test]
@@ -112,12 +94,7 @@ fn collision_audit_small_strings() {
         hashes.push(crate::axhash_seeded(key.as_bytes(), seed));
     }
     let collisions = count_collisions(&hashes);
-    assert_collision_rate(
-        "small strings",
-        hashes.len(),
-        collisions,
-        0.0005,
-    );
+    assert_collision_rate("small strings", hashes.len(), collisions, 0.0005);
 }
 
 #[test]

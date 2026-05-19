@@ -1,5 +1,6 @@
 use crate::backend::finalize_vector;
 use crate::constants::{SECRET, STRIPE_SECRET};
+use crate::math::folded_multiply;
 
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::*;
@@ -46,6 +47,11 @@ unsafe fn process_128_block_x86(
     let (d4, d5) = unsafe { load_pair(ptr.add(64)) };
     let (d6, d7) = unsafe { load_pair(ptr.add(96)) };
 
+    *v1 = _mm_xor_si128(*v1, *v0);
+    *v3 = _mm_xor_si128(*v3, *v2);
+    *v5 = _mm_xor_si128(*v5, *v4);
+    *v7 = _mm_xor_si128(*v7, *v6);
+
     *v0 = unsafe { aes_round(*v0, d0) };
     *v1 = unsafe { aes_round(*v1, d1) };
     *v2 = unsafe { aes_round(*v2, d2) };
@@ -54,11 +60,6 @@ unsafe fn process_128_block_x86(
     *v5 = unsafe { aes_round(*v5, d5) };
     *v6 = unsafe { aes_round(*v6, d6) };
     *v7 = unsafe { aes_round(*v7, d7) };
-
-    *v1 = _mm_xor_si128(*v1, *v0);
-    *v3 = _mm_xor_si128(*v3, *v2);
-    *v5 = _mm_xor_si128(*v5, *v4);
-    *v7 = _mm_xor_si128(*v7, *v6);
 }
 
 #[cfg(target_arch = "x86_64")]
@@ -104,11 +105,26 @@ pub(crate) unsafe fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u6
         );
     }
 
-    let sum0 = _mm_xor_si128(_mm_xor_si128(v0, v2), _mm_xor_si128(v4, v6));
-    let sum1 = _mm_xor_si128(_mm_xor_si128(v1, v3), _mm_xor_si128(v5, v7));
-    let final_vec = _mm_xor_si128(sum0, sum1);
+    let l0 = unsafe { lanes(v0) };
+    let l1 = unsafe { lanes(v1) };
+    let l2 = unsafe { lanes(v2) };
+    let l3 = unsafe { lanes(v3) };
+    let l4 = unsafe { lanes(v4) };
+    let l5 = unsafe { lanes(v5) };
+    let l6 = unsafe { lanes(v6) };
+    let l7 = unsafe { lanes(v7) };
 
-    let lanes = unsafe { lanes(final_vec) };
+    let p0 = folded_multiply(l0[0] ^ STRIPE_SECRET[0], l1[1] ^ SECRET[0]);
+    let p1 = folded_multiply(l2[0] ^ STRIPE_SECRET[1], l3[1] ^ SECRET[1]);
+    let p2 = folded_multiply(l4[0] ^ STRIPE_SECRET[2], l5[1] ^ SECRET[2]);
+    let p3 = folded_multiply(l6[0] ^ STRIPE_SECRET[3], l7[1] ^ SECRET[3]);
+    let q0 = folded_multiply(l0[1] ^ SECRET[1], l1[0] ^ STRIPE_SECRET[1]);
+    let q1 = folded_multiply(l2[1] ^ SECRET[2], l3[0] ^ STRIPE_SECRET[2]);
+    let q2 = folded_multiply(l4[1] ^ SECRET[3], l5[0] ^ STRIPE_SECRET[3]);
+    let q3 = folded_multiply(l6[1] ^ SECRET[0], l7[0] ^ STRIPE_SECRET[0]);
 
-    finalize_vector(lanes[0], lanes[1], len)
+    let lo = folded_multiply(p0 ^ q1, p2 ^ q3);
+    let hi = folded_multiply(p1 ^ q2, p3 ^ q0);
+
+    finalize_vector(lo, hi, len)
 }

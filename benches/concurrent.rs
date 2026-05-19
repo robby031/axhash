@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use util::{SplitMix64, configure_criterion, make_data};
 
-const SEED: u64 = 0xc0de_cafe_babe_f00d;
+const SEED: u64 = 0xC0DECAFEBABEF00D;
 const OPS_PER_THREAD: usize = 10_000;
 const THREAD_COUNTS: &[usize] = &[1, 2, 4, 8];
 

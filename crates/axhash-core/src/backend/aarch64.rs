@@ -1,7 +1,20 @@
 use crate::backend::finalize_vector;
 use crate::constants::{SECRET, STRIPE_SECRET};
+use crate::math::folded_multiply;
 use crate::memory::r_128;
 use core::arch::aarch64::*;
+
+#[target_feature(enable = "neon")]
+#[inline]
+unsafe fn lane_lo(v: uint8x16_t) -> u64 {
+    vgetq_lane_u64(vreinterpretq_u64_u8(v), 0)
+}
+
+#[target_feature(enable = "neon")]
+#[inline]
+unsafe fn lane_hi(v: uint8x16_t) -> u64 {
+    vgetq_lane_u64(vreinterpretq_u64_u8(v), 1)
+}
 
 #[target_feature(enable = "neon", enable = "aes")]
 #[inline]
@@ -25,6 +38,11 @@ unsafe fn process_128_block_aarch64(
     let d6 = unsafe { r_128(ptr.add(96)) };
     let d7 = unsafe { r_128(ptr.add(112)) };
 
+    *v1 = veorq_u8(*v1, *v0);
+    *v3 = veorq_u8(*v3, *v2);
+    *v5 = veorq_u8(*v5, *v4);
+    *v7 = veorq_u8(*v7, *v6);
+
     *v0 = vaesmcq_u8(vaeseq_u8(*v0, d0));
     *v1 = vaesmcq_u8(vaeseq_u8(*v1, d1));
     *v2 = vaesmcq_u8(vaeseq_u8(*v2, d2));
@@ -33,11 +51,6 @@ unsafe fn process_128_block_aarch64(
     *v5 = vaesmcq_u8(vaeseq_u8(*v5, d5));
     *v6 = vaesmcq_u8(vaeseq_u8(*v6, d6));
     *v7 = vaesmcq_u8(vaeseq_u8(*v7, d7));
-
-    *v1 = veorq_u8(*v1, *v0);
-    *v3 = veorq_u8(*v3, *v2);
-    *v5 = veorq_u8(*v5, *v4);
-    *v7 = veorq_u8(*v7, *v6);
 }
 
 #[target_feature(enable = "neon", enable = "aes")]
@@ -82,13 +95,26 @@ pub(crate) unsafe fn hash_bytes_long(ptr: *const u8, len: usize, acc: u64) -> u6
         );
     }
 
-    let sum0 = veorq_u8(veorq_u8(v0, v2), veorq_u8(v4, v6));
-    let sum1 = veorq_u8(veorq_u8(v1, v3), veorq_u8(v5, v7));
-    let final_vec = veorq_u8(sum0, sum1);
+    let (l0, h0) = unsafe { (lane_lo(v0), lane_hi(v0)) };
+    let (l1, h1) = unsafe { (lane_lo(v1), lane_hi(v1)) };
+    let (l2, h2) = unsafe { (lane_lo(v2), lane_hi(v2)) };
+    let (l3, h3) = unsafe { (lane_lo(v3), lane_hi(v3)) };
+    let (l4, h4) = unsafe { (lane_lo(v4), lane_hi(v4)) };
+    let (l5, h5) = unsafe { (lane_lo(v5), lane_hi(v5)) };
+    let (l6, h6) = unsafe { (lane_lo(v6), lane_hi(v6)) };
+    let (l7, h7) = unsafe { (lane_lo(v7), lane_hi(v7)) };
 
-    let final_u64x2 = vreinterpretq_u64_u8(final_vec);
-    let lo = vgetq_lane_u64(final_u64x2, 0);
-    let hi = vgetq_lane_u64(final_u64x2, 1);
+    let p0 = folded_multiply(l0 ^ STRIPE_SECRET[0], h1 ^ SECRET[0]);
+    let p1 = folded_multiply(l2 ^ STRIPE_SECRET[1], h3 ^ SECRET[1]);
+    let p2 = folded_multiply(l4 ^ STRIPE_SECRET[2], h5 ^ SECRET[2]);
+    let p3 = folded_multiply(l6 ^ STRIPE_SECRET[3], h7 ^ SECRET[3]);
+    let q0 = folded_multiply(h0 ^ SECRET[1], l1 ^ STRIPE_SECRET[1]);
+    let q1 = folded_multiply(h2 ^ SECRET[2], l3 ^ STRIPE_SECRET[2]);
+    let q2 = folded_multiply(h4 ^ SECRET[3], l5 ^ STRIPE_SECRET[3]);
+    let q3 = folded_multiply(h6 ^ SECRET[0], l7 ^ STRIPE_SECRET[0]);
+
+    let lo = folded_multiply(p0 ^ q1, p2 ^ q3);
+    let hi = folded_multiply(p1 ^ q2, p3 ^ q0);
 
     finalize_vector(lo, hi, len)
 }

@@ -1,6 +1,6 @@
-use crate::tests::DemoRecord;
 use crate::hasher::AxHasher;
 use crate::hasher::api::*;
+use crate::tests::DemoRecord;
 use core::hash::Hasher;
 
 #[test]

@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::hash::BuildHasher;
 use util::{SplitMix64, configure_criterion};
 
-const SEED: u64 = 0xabcd_ef01_2345_6789;
+const SEED: u64 = 0xABCDEF0123456789;
 const MAP_SIZES: &[usize] = &[100, 1_000, 10_000, 100_000];
 
 fn build_u64_map<S: BuildHasher + Default>(n: usize) -> HashMap<u64, u64, S> {

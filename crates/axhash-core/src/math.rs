@@ -14,6 +14,11 @@ pub(crate) const fn seed_lane(seed: u64, lane: usize) -> u64 {
     )
 }
 
+// Accumulator default untuk axhash(bytes) dengan seed 0.
+// Nilainya identik dengan seed_lane(0, 0) namun dievaluasi di compile-time
+// dan dapat dipakai ulang tanpa biaya runtime
+pub(crate) const DEFAULT_ACC: u64 = seed_lane(0, 0);
+
 #[inline(always)]
 pub(crate) const fn avalanche(mut x: u64) -> u64 {
     x ^= x >> 33;

@@ -1,5 +1,5 @@
-use crate::tests::{assert_uniform, chi_squared_uniformity};
 use crate::hasher::AxHasher;
+use crate::tests::{assert_uniform, chi_squared_uniformity};
 use core::hash::Hasher;
 
 #[test]
@@ -13,11 +13,7 @@ fn lower_bit_distribution_sequential_u64() {
         hashes.push(hasher.finish());
     }
     for mask in [15u64, 31, 63, 127, 255] {
-        assert_uniform(
-            &format!("seq_u64 & {}", mask),
-            &hashes,
-            mask,
-        );
+        assert_uniform(&format!("seq_u64 & {}", mask), &hashes, mask);
     }
 }
 
@@ -34,11 +30,7 @@ fn lower_bit_distribution_random_u64() {
         hashes.push(hasher.finish());
     }
     for mask in [15u64, 31, 63, 127, 255] {
-        assert_uniform(
-            &format!("rand_u64 & {}", mask),
-            &hashes,
-            mask,
-        );
+        assert_uniform(&format!("rand_u64 & {}", mask), &hashes, mask);
     }
 }
 
@@ -52,11 +44,7 @@ fn lower_bit_distribution_short_strings() {
         hashes.push(crate::axhash_seeded(key.as_bytes(), seed));
     }
     for mask in [15u64, 31, 63, 127, 255] {
-        assert_uniform(
-            &format!("short_str & {}", mask),
-            &hashes,
-            mask,
-        );
+        assert_uniform(&format!("short_str & {}", mask), &hashes, mask);
     }
 }
 
@@ -115,16 +103,14 @@ fn lower_bit_distribution_patterned_keys() {
             4 => (0..((i % 32) + 1)).map(|x| (x * 7) as u8).collect(),
             5 => (0..((i % 32) + 1)).map(|x| (x ^ 0x55) as u8).collect(),
             6 => vec![(i & 0xFF) as u8; (i % 32) + 1],
-            _ => (0..((i % 32) + 1)).map(|x| ((i ^ x) & 0xFF) as u8).collect(),
+            _ => (0..((i % 32) + 1))
+                .map(|x| ((i ^ x) & 0xFF) as u8)
+                .collect(),
         };
         hashes.push(crate::axhash_seeded(&key, seed));
     }
     for mask in [15u64, 31, 63, 127, 255] {
-        assert_uniform(
-            &format!("patterned & {}", mask),
-            &hashes,
-            mask,
-        );
+        assert_uniform(&format!("patterned & {}", mask), &hashes, mask);
     }
 }
 
@@ -146,12 +132,16 @@ fn lower_bit_distribution_raw_bytes_core_short() {
         let buckets = (mask + 1) as usize;
         eprintln!(
             "raw_short & {}: chi2={:.1} max_dev={:.1}%",
-            mask, chi2, max_dev * 100.0
+            mask,
+            chi2,
+            max_dev * 100.0
         );
         assert!(
             chi2 < 100_000.0,
             "raw_short & {}: chi2={:.1} is catastrophically bad (buckets={})",
-            mask, chi2, buckets
+            mask,
+            chi2,
+            buckets
         );
     }
 }
@@ -174,12 +164,16 @@ fn lower_bit_distribution_raw_bytes_core_long() {
         let buckets = (mask + 1) as usize;
         eprintln!(
             "raw_long & {}: chi2={:.1} max_dev={:.1}%",
-            mask, chi2, max_dev * 100.0
+            mask,
+            chi2,
+            max_dev * 100.0
         );
         assert!(
             chi2 < 100_000.0,
             "raw_long & {}: chi2={:.1} is catastrophically bad (buckets={})",
-            mask, chi2, buckets
+            mask,
+            chi2,
+            buckets
         );
     }
 }

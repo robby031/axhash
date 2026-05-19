@@ -3,7 +3,7 @@ mod util;
 use criterion::{criterion_group, criterion_main};
 use util::{ALL_SIZES, bench_id, configure_criterion, make_data, throughput};
 
-const SEED: u64 = 0xdead_cafe_1234_5678;
+const SEED: u64 = 0xDEADCAFE12345678;
 
 fn bench_axhash(c: &mut criterion::Criterion) {
     let mut group = c.benchmark_group("axhash/one-shot");

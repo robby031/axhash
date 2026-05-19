@@ -9,19 +9,20 @@ use core::hash::Hasher;
 impl Hasher for AxHasher {
     #[inline(always)]
     fn finish(&self) -> u64 {
-        let final_acc = if self.sponge_bits == 0 {
-            self.acc
-        } else {
+        let mut acc = self.acc;
+        if self.sponge_bits != 0 {
             let lo = self.sponge as u64;
             let hi = (self.sponge >> 64) as u64;
-            folded_multiply(lo ^ self.acc, hi ^ SECRET[1])
-        };
-        avalanche(final_acc)
+            acc = folded_multiply(lo ^ acc, hi ^ SECRET[1]);
+        }
+        avalanche(acc)
     }
 
     #[inline(always)]
     fn write(&mut self, bytes: &[u8]) {
-        self.flush_sponge();
+        if self.sponge_bits != 0 {
+            self.flush_sponge_slow();
+        }
         self.acc = hash_bytes_core(bytes, self.acc);
     }
 
@@ -37,21 +38,25 @@ impl Hasher for AxHasher {
 
     #[inline(always)]
     fn write_u32(&mut self, i: u32) {
-        self.flush_sponge();
-
+        if self.sponge_bits != 0 {
+            self.flush_sponge_slow();
+        }
         self.acc = folded_multiply(self.acc ^ i as u64, SECRET[1]);
     }
 
     #[inline(always)]
     fn write_u64(&mut self, i: u64) {
-        self.flush_sponge();
-
+        if self.sponge_bits != 0 {
+            self.flush_sponge_slow();
+        }
         self.acc = folded_multiply(self.acc ^ i, SECRET[1]);
     }
 
     #[inline(always)]
     fn write_u128(&mut self, i: u128) {
-        self.flush_sponge();
+        if self.sponge_bits != 0 {
+            self.flush_sponge_slow();
+        }
         let lo = i as u64;
         let hi = (i >> 64) as u64;
         self.acc = folded_multiply(lo ^ self.acc, hi ^ SECRET[1]);

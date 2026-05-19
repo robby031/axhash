@@ -99,5 +99,9 @@ fn sponge_flush_edge_cases() {
     h4.write_u8(0x01);
     h4.write(&[0x02, 0x03]);
     h4.write_u16(0x0504);
-    assert_eq!(interleaved, h4.finish(), "interleaved writes non-deterministic");
+    assert_eq!(
+        interleaved,
+        h4.finish(),
+        "interleaved writes non-deterministic"
+    );
 }
