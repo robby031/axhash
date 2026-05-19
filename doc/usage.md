@@ -16,7 +16,7 @@ Add the dependency:
 
 ```toml
 [dependencies]
-axhash = "0.8"
+axhash = "0.11"
 ```
 
 ### Hash raw bytes

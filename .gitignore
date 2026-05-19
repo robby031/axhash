@@ -20,3 +20,9 @@ Thumbs.db
 
 .env
 .env.*
+
+# Benchmark / profiling output never belongs in the repo.
+*.log
+/criterion/
+flamegraph*.svg
+perf.data*

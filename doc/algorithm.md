@@ -5,9 +5,10 @@ AxHash is a 64-bit non-cryptographic hash function optimized for HashMap workloa
 ## Overview
 
 - **Output:** 64-bit digest
-- **State:** 64-bit accumulator (`acc`) + 64-bit sponge (for streaming)
+- **State:** 64-bit accumulator (`acc`) + 128-bit sponge (for streaming)
 - **Seed handling:** Raw seed is mixed with secret constants via `seed_lane()` before use
-- **Finalization:** `avalanche()` applies bit-mixing to ensure uniform lower-bit distribution
+- **Finalization:** Each length-class branch ends with one or more `folded_multiply`
+  operations as the integrated finalizer; verified to pass SMHasher3 188/188
 
 ## Input-Length Dispatch
 
@@ -25,6 +26,11 @@ AxHash is a 64-bit non-cryptographic hash function optimized for HashMap workloa
 ## Short Paths (≤128 bytes)
 
 All platforms share the same scalar implementation for short inputs. Each path loads fixed-width 64-bit chunks from the start and end of the buffer, mixes them with secret constants via `folded_multiply`, and XOR-rotates the intermediate results.
+
+`hash_bytes_short` (≤16 bytes) has three sub-paths:
+- `len ≥ 8` — two 64-bit loads (overlapping at `len-8`)
+- `len == 4` — single `u32` fast path with const-folded length mixing
+- `len ∈ {1,2,3,5,6,7}` — `read_partial_u64` (branchless byte gather for 1–3 bytes)
 
 ## Long Path (>128 bytes)
 

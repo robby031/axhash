@@ -10,18 +10,12 @@ pub(super) unsafe fn read_partial_u64(ptr: *const u8, len: usize) -> u64 {
         let b = u32::from_le(unsafe { core::ptr::read_unaligned(ptr.add(len - 4).cast::<u32>()) });
         (a as u64) | ((b as u64) << 32)
     } else {
-        let b0 = unsafe { *ptr } as u64;
-        let b1 = if len > 1 {
-            (unsafe { *ptr.add(1) }) as u64
-        } else {
-            0
-        };
-        let b2 = if len > 2 {
-            (unsafe { *ptr.add(2) }) as u64
-        } else {
-            0
-        };
-        b0 | (b1 << 8) | (b2 << 16)
+        let c1 = unsafe { *ptr } as u64;
+        let c2 = unsafe { *ptr.add(len >> 1) } as u64;
+        let c3 = unsafe { *ptr.add(len - 1) } as u64;
+        let raw = c1 | (c2 << 8) | (c3 << 16);
+        let mask = (1u64 << (len << 3)) - 1;
+        raw & mask
     }
 }
 
@@ -31,18 +25,24 @@ pub(super) unsafe fn hash_bytes_short(ptr: *const u8, len: usize, acc: u64) -> u
     let len_u64 = len as u64;
     let len_mix = len_u64.wrapping_mul(0x9E3779B97F4A7C15);
 
-    if len < 8 {
-        let lo = unsafe { read_partial_u64(ptr, len) };
-        let hi = lo.rotate_left(17) ^ len_u64 ^ SECRET[0];
-
-        let m0 = folded_multiply(lo ^ SECRET[1] ^ acc, hi ^ STRIPE_SECRET[1]);
-        folded_multiply(m0, len_mix ^ STRIPE_SECRET[0])
-    } else {
+    if len >= 8 {
         let lo = unsafe { r_u64(ptr) };
         let hi = unsafe { r_u64(ptr.add(len - 8)) };
 
         let m0 = folded_multiply(lo ^ SECRET[0], hi ^ STRIPE_SECRET[0] ^ len_mix);
         folded_multiply(m0 ^ acc, len_mix ^ SECRET[1])
+    } else if len == 4 {
+        let v = u32::from_le(unsafe { core::ptr::read_unaligned(ptr.cast::<u32>()) }) as u64;
+        let lo = v | (v << 32);
+        let hi = lo.rotate_left(17) ^ 4 ^ SECRET[0];
+        let m0 = folded_multiply(lo ^ SECRET[1] ^ acc, hi ^ STRIPE_SECRET[1]);
+        folded_multiply(m0, len_mix ^ STRIPE_SECRET[0])
+    } else {
+        let lo = unsafe { read_partial_u64(ptr, len) };
+        let hi = lo.rotate_left(17) ^ len_u64 ^ SECRET[0];
+
+        let m0 = folded_multiply(lo ^ SECRET[1] ^ acc, hi ^ STRIPE_SECRET[1]);
+        folded_multiply(m0, len_mix ^ STRIPE_SECRET[0])
     }
 }
 
@@ -75,7 +75,6 @@ pub(super) unsafe fn hash_bytes_33_64(ptr: *const u8, len: usize, acc: u64) -> u
 
     let len_mix = (len as u64).wrapping_mul(0x9E3779B97F4A7C15);
 
-    // Mid-key V2: dua sub-hash (depan & belakang) + dua multiply akhir.
     let f0 = folded_multiply(w0 ^ SECRET[0], w1 ^ STRIPE_SECRET[0]);
     let f1 = folded_multiply(w2 ^ SECRET[1], w3 ^ STRIPE_SECRET[1]);
     let front = f0 ^ f1.rotate_left(17);
