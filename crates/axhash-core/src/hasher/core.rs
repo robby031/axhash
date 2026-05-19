@@ -1,5 +1,5 @@
 use crate::constants::SECRET;
-use crate::math::folded_multiply;
+use crate::math::{DEFAULT_ACC, folded_multiply, seed_lane};
 
 #[derive(Clone, Debug)]
 pub struct AxHasher {
@@ -11,13 +11,17 @@ pub struct AxHasher {
 impl AxHasher {
     #[inline(always)]
     pub fn new() -> Self {
-        Self::new_with_seed(0)
+        Self {
+            acc: DEFAULT_ACC,
+            sponge: 0,
+            sponge_bits: 0,
+        }
     }
 
     #[inline(always)]
     pub fn new_with_seed(seed: u64) -> Self {
         Self {
-            acc: seed ^ SECRET[0],
+            acc: seed_lane(seed, 0),
             sponge: 0,
             sponge_bits: 0,
         }
@@ -53,40 +57,6 @@ impl AxHasher {
 
         self.sponge |= value.into() << self.sponge_bits;
         self.sponge_bits += bits;
-    }
-
-    #[inline(always)]
-    pub(crate) fn push_bytes(&mut self, bytes: &[u8]) {
-        let n = bytes.len();
-        debug_assert!(n + ((self.sponge_bits >> 3) as usize) <= 16);
-        if n == 0 {
-            return;
-        }
-
-        // Common sizes: single load tanpa buffer init.
-        let value: u128 = if n == 8 {
-            let arr: [u8; 8] = bytes.try_into().unwrap();
-            u64::from_le_bytes(arr) as u128
-        } else if n == 4 {
-            let arr: [u8; 4] = bytes.try_into().unwrap();
-            u32::from_le_bytes(arr) as u128
-        } else if n == 16 {
-            let arr: [u8; 16] = bytes.try_into().unwrap();
-            u128::from_le_bytes(arr)
-        } else if n == 1 {
-            bytes[0] as u128
-        } else if n == 2 {
-            let arr: [u8; 2] = bytes.try_into().unwrap();
-            u16::from_le_bytes(arr) as u128
-        } else {
-            // 3, 5, 6, 7, 9..=15: zero-extend ke 16-byte buf
-            let mut buf = [0u8; 16];
-            buf[..n].copy_from_slice(bytes);
-            u128::from_le_bytes(buf)
-        };
-
-        self.sponge |= value << self.sponge_bits;
-        self.sponge_bits += (n << 3) as u8;
     }
 }
 

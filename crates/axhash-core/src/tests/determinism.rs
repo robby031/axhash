@@ -139,3 +139,78 @@ fn finish_is_idempotent_after_writes() {
     assert_eq!(a, b);
     assert_eq!(b, c);
 }
+
+#[test]
+fn all_seeded_paths_produce_identical_hash() {
+    use crate::AxBuildHasher;
+    use core::hash::BuildHasher;
+
+    for &seed in &[0u64, 1, 42, 0xDEAD_BEEF, 0xFFFF_FFFF_FFFF_FFFF] {
+        for &payload in &[
+            &b""[..],
+            &b"a"[..],
+            &b"hello"[..],
+            &b"axhash-consistency-check"[..],
+            &[0u8; 96][..],
+            &[0xABu8; 200][..],
+        ] {
+            let one_shot = axhash_seeded(payload, seed);
+
+            let mut h1 = AxHasher::new_with_seed(seed);
+            h1.write(payload);
+            let streaming = h1.finish();
+
+            let builder = AxBuildHasher::with_seed(seed);
+            let mut h2 = builder.build_hasher();
+            h2.write(payload);
+            let via_builder = h2.finish();
+
+            assert_eq!(
+                one_shot,
+                streaming,
+                "axhash_seeded != AxHasher::new_with_seed for seed={seed:#x} \
+                 len={}",
+                payload.len()
+            );
+            assert_eq!(
+                one_shot,
+                via_builder,
+                "axhash_seeded != AxBuildHasher::with_seed for seed={seed:#x} \
+                 len={}",
+                payload.len()
+            );
+        }
+    }
+}
+
+/// Default-seed paths (no seed specified) must also align.
+#[test]
+fn all_default_seed_paths_produce_identical_hash() {
+    use crate::AxBuildHasher;
+    use core::hash::BuildHasher;
+
+    for &payload in &[&b""[..], &b"x"[..], &b"hello world"[..], &[0u8; 200][..]] {
+        let one_shot = axhash(payload);
+
+        let mut h1 = AxHasher::new();
+        h1.write(payload);
+        let streaming = h1.finish();
+
+        let mut h2 = AxBuildHasher::new().build_hasher();
+        h2.write(payload);
+        let via_builder = h2.finish();
+
+        assert_eq!(
+            one_shot,
+            streaming,
+            "axhash != AxHasher::new len={}",
+            payload.len()
+        );
+        assert_eq!(
+            one_shot,
+            via_builder,
+            "axhash != AxBuildHasher::new len={}",
+            payload.len()
+        );
+    }
+}

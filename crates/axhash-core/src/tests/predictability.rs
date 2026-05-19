@@ -53,7 +53,7 @@ fn hasher_is_pure_no_hidden_state() {
 }
 
 #[test]
-fn seed_derivation_inconsistency_documentation() {
+fn seed_derivation_is_unified_across_entry_points() {
     let seed = 0xCAFE_BABEu64;
     let data = b"test";
 
@@ -63,11 +63,9 @@ fn seed_derivation_inconsistency_documentation() {
 
     let h2 = crate::axhash_seeded(data, seed);
 
-    assert_ne!(
+    assert_eq!(
         h1, h2,
-        "DOCUMENTATION: axhash_seeded and AxHasher::new_with_seed use different seed \
-         derivation. h1={:016x} h2={:016x}",
-        h1, h2
+        "axhash_seeded must match AxHasher::new_with_seed (seed={seed:#x})"
     );
 }
 

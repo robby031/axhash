@@ -1,6 +1,6 @@
 use core::hash::BuildHasher;
 
-use crate::constants::SECRET;
+use crate::math::{DEFAULT_ACC, seed_lane};
 
 use super::AxHasher;
 
@@ -13,14 +13,14 @@ impl AxBuildHasher {
     #[inline(always)]
     pub const fn new() -> Self {
         Self {
-            prepared_seed: SECRET[0],
+            prepared_seed: DEFAULT_ACC,
         }
     }
 
     #[inline(always)]
     pub const fn with_seed(seed: u64) -> Self {
         Self {
-            prepared_seed: seed ^ SECRET[0],
+            prepared_seed: seed_lane(seed, 0),
         }
     }
 
